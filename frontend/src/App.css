@@ -1,4 +1,9 @@
-.App {
-  text-align: center;
+html, body {
+    text-align: center;
+    background-color: #1338ab;
+    color: #eddc23;
 }
 
+ul.gamelist {
+    list-style-type: none;
+}

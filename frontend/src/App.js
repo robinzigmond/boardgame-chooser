@@ -4,12 +4,51 @@ import './App.css';
 const backendUrl = "http://127.0.0.1:5000/collection/";
 
 class App extends Component {
+    constructor(props) {
+        super(props);
+        this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+        this.handleWantImportSubmit = this.handleWantImportSubmit.bind(this);
+        this.handleUserNameChange = this.handleUserNameChange.bind(this);
+        this.handleImportSubmit = this.handleImportSubmit.bind(this);
+        this.state = {username: "", data: null, collections: 0, importWanted: true, showForm: false};
+    }
+
+    handleCheckboxChange(event) {
+        this.setState({importWanted: event.target.checked});
+    }
+
+    handleWantImportSubmit() {
+        this.setState({showForm: true});
+    }
+
+    handleUserNameChange(event) {
+        this.setState({username: event.target.value});
+    }
+
+    handleImportSubmit() {
+        this.setState({loading: true, importWanted: false, showForm: false});
+        fetch(backendUrl+this.state.username)
+            .then(response => response.json())
+            .then(json => this.setState(prevState => ({data: [{username: prevState.username, data: json}], loading: false})));
+    }
+
     render() {
         return (
             <div className="App">
                 <h1>Find a boardgame to play!</h1>
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
-                <ImportSelect />
+                <p>{this.state.data && this.state.data.length
+                ? `Collections loaded for: ${this.state.data.map(data=>data.username).join(", ")}`
+                : "No collection data loaded yet"}</p>
+                <label htmlFor="importCheck">Do you want to import a new collection?</label>
+                <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange} checked={this.state.importWanted}/>
+                <button type="button" onClick={this.handleWantImportSubmit} disabled={!this.state.importWanted}>Import it!</button>
+                {this.state.showForm ?
+                <ImportSelect handleChange={this.handleUserNameChange} handleSubmit={this.handleImportSubmit}/>
+                : null}
+                {this.state.loading ? <p>Loading game data...</p> : null}
+                {!this.state.loading && this.state.data && this.state.data.length && !this.state.showForm ?
+                <Preferences data={this.state.data.reduce((acc, userdata) =>acc.concat(userdata.data), [])}/> : null}
             </div>
         );
     }
@@ -18,20 +57,7 @@ class App extends Component {
 class ImportSelect extends Component {
     constructor(props) {
         super(props);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {username: "", data: null, loading: false};
-    }
-
-    handleChange(event) {
-        this.setState({username: event.target.value});
-    }
-
-    handleSubmit() {
-        this.setState({loading: true});
-        fetch(backendUrl+this.state.username)
-            .then(response => response.json())
-            .then(json => this.setState({data: json, loading: false}));
+        this.state = {loading: false};
     }
 
     render() {
@@ -47,12 +73,9 @@ class ImportSelect extends Component {
         return (
             <div>
                 <label htmlFor="bgg-username">Enter your BGG username to import your collection:</label>
-                <input type="text" name="bgg-username" onChange={this.handleChange} value={this.state.username}/>
-                <button type="button" onClick={this.handleSubmit}>Import!</button>
-                {this.state.loading ? <p>Loading game data...</p> : null}
+                <input type="text" name="bgg-username" onChange={this.props.handleChange} value={this.state.username}/>
+                <button type="button" onClick={this.props.handleSubmit}>Import!</button>
                 {successMessage ? <p>{successMessage}</p> : null}
-                {!this.state.loading && this.state.data && this.state.data.length ?
-                <Preferences data={this.state.data}/> : null}
             </div>
         );
     }
@@ -65,7 +88,7 @@ class Preferences extends Component {
         this.handleAvailableTimeChange = this.handleAvailableTimeChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {playerCount: 1, availableTime: 30, gameOrder: "myRating", recommendations: [], given: false};
+        this.state = {playerCount: 4, availableTime: 30, gameOrder: "myRating", recommendations: [], given: false};
     }
 
     handlePlayerCountChange(event) {
@@ -88,14 +111,15 @@ class Preferences extends Component {
             && game.maxplaytime >= this.state.availableTime);
         var sortFunction;
         switch(this.state.gameOrder) {
-            case "myRating":
-                sortFunction = (a,b) => (b.my_rating - a.my_rating);
-                break;
             case "bggRating":
                 sortFunction = (a,b) => (b.stats.average - a.stats.average);
                 break;
             case "geekRating":
                 sortFunction = (a,b) => (b.stats.bayesaverage - a.stats.bayesaverage);
+                break;
+            case "myRating":
+            default:
+                sortFunction = (a,b) => (b.my_rating - a.my_rating);
                 break;
         }
         foundGames.sort(sortFunction);
@@ -131,7 +155,7 @@ class RecommendationList extends Component {
             return (
                 <div>
                     <h3>Recommended Games</h3>
-                    <ul>
+                    <ul className="gamelist">
                         {this.props.games.map(game => (
                             <li key={game.id}>{game.name}</li>
                         ))}
