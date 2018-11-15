@@ -26,7 +26,7 @@ class App extends Component {
     }
 
     handleImportSubmit() {
-        this.setState({loading: true, importWanted: false, showForm: false});
+        this.setState({data: [], loading: true, importWanted: false, showForm: false});
         fetch(backendUrl+this.state.username)
             .then(response => response.json())
             .then(json => this.setState(prevState => ({data: [{username: prevState.username, data: json}], loading: false})));
@@ -150,16 +150,42 @@ class Preferences extends Component {
 }
 
 class RecommendationList extends Component {
+    convertRating(rating, precision, fallback) {
+        if (rating == null) {
+            return fallback || "not rated";
+        }
+        return (+rating).toFixed(precision)
+    }
+
     render() {
         if (this.props.games.length) {
             return (
                 <div>
                     <h3>Recommended Games</h3>
-                    <ul className="gamelist">
-                        {this.props.games.map(game => (
-                            <li key={game.id}>{game.name}</li>
-                        ))}
-                    </ul>
+                    <table className="gamelist">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Image</th>
+                                <th>Your rating</th>
+                                <th>Overall BGG rating</th>
+                                <th>BGG "Geek Rating"</th>
+                                <th>BGG ranking list position</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.props.games.map(game => (
+                                <tr key={game.id}>
+                                    <td>{game.name}</td>
+                                    <td><img alt={`${game.name}`} src={game.thumbnail} /></td>
+                                    <td>{this.convertRating(game.my_rating, 1)}</td>
+                                    <td>{this.convertRating(game.stats.average, 2)}</td>
+                                    <td>{this.convertRating(game.stats.bayesaverage, 2)}</td>
+                                    <td>{this.convertRating(game.stats.ranks[0].value, 0, "not ranked")}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )            
         }
