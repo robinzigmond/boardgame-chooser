@@ -5,6 +5,78 @@ html, body {
     padding-bottom: 30px;
 }
 
+.App {
+    padding-right: 110px;
+    position: relative;
+}
+
+.form-section {
+    margin: 10px 0;
+}
+
+.form-section input, .form-section select, .form-section label, .form-section button {
+    margin-left: 10px;
+}
+
+.loader-box {
+    position: fixed;
+    width: 90vw;
+    max-width: 800px;
+    height: 90vh;
+    max-height: 500px;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    color: black;
+    border: 3px solid black;
+}
+
+.loader-box .loader {
+    box-sizing: border-box;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    margin: 50px auto;
+    border: 20px solid rgba(19, 56, 171, 0.5);
+    border-right-color: #1338ab;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#collection-info {
+    box-sizing: border-box;
+    position: absolute;
+    top: 80px;
+    right: 0px;
+    width: 100px;
+    background-color: #981234;
+    border: 1px solid #eddc23;
+    padding: 10px;
+    margin-right: 5px;
+}
+
+#collection-info ul {
+    padding-left: 20px;
+}
+
+#collection-info li {
+    list-style-type: circle;
+}
+
+.pagination-buttons {
+    margin-bottom: 10px;
+}
+
 table.gamelist {
     border-collapse: collapse;
     border: 2px solid white;

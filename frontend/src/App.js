@@ -37,18 +37,47 @@ class App extends Component {
             <div className="App">
                 <h1>Find a boardgame to play!</h1>
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
-                <p>{this.state.data && this.state.data.length
-                ? `Collections loaded for: ${this.state.data.map(data=>data.username).join(", ")}`
-                : "No collection data loaded yet"}</p>
-                <label htmlFor="importCheck">Do you want to import a new collection?</label>
-                <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange} checked={this.state.importWanted}/>
-                <button type="button" onClick={this.handleWantImportSubmit} disabled={!this.state.importWanted}>Import it!</button>
+                <CollectionInfo data={this.state.data}/>
+                <div className="form-section">
+                    <label htmlFor="importCheck">Do you want to import a new collection?</label>
+                    <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange} checked={this.state.importWanted}/>
+                    <button type="button" onClick={this.handleWantImportSubmit} disabled={!this.state.importWanted}>Import it!</button>
+                </div>
                 {this.state.showForm ?
                 <ImportSelect handleChange={this.handleUserNameChange} handleSubmit={this.handleImportSubmit}/>
                 : null}
-                {this.state.loading ? <p>Loading game data...</p> : null}
+                {this.state.loading ? <Loader /> : null}
                 {!this.state.loading && this.state.data && this.state.data.length && !this.state.showForm ?
                 <Preferences data={this.state.data.reduce((acc, userdata) =>acc.concat(userdata.data), [])}/> : null}
+            </div>
+        );
+    }
+}
+
+class Loader extends Component {
+    render() {
+        return (
+            <div className="loader-box">
+                <div className="loader"></div>
+                <p>Loading game data...</p>
+            </div>
+        );
+    }
+}
+
+class CollectionInfo extends Component {
+    render() {
+        return (
+            <div id="collection-info">
+                {this.props.data && this.props.data.length
+                ? 
+                <div>
+                    <p>Collections loaded for:</p>
+                    <ul>{this.props.data.map((data, idx)=>(
+                        <li key={idx}>{data.username}</li>
+                    ))}</ul>
+                </div>
+                : <p>No collection data loaded yet</p>}
             </div>
         );
     }
@@ -72,9 +101,11 @@ class ImportSelect extends Component {
         }
         return (
             <div>
-                <label htmlFor="bgg-username">Enter your BGG username to import your collection:</label>
-                <input type="text" name="bgg-username" onChange={this.props.handleChange} value={this.state.username}/>
-                <button type="button" onClick={this.props.handleSubmit}>Import!</button>
+                <div className="form-section">
+                    <label htmlFor="bgg-username">Enter your BGG username to import your collection:</label>
+                    <input type="text" name="bgg-username" onChange={this.props.handleChange} value={this.state.username}/>
+                    <button type="button" onClick={this.props.handleSubmit}>Import!</button>
+                </div>
                 {successMessage ? <p>{successMessage}</p> : null}
             </div>
         );
@@ -132,24 +163,66 @@ class Preferences extends Component {
     render() {
         return (
             <div>
-                <label htmlFor="playerCount">Number of Players</label>
-                <input type="number" name="playerCount" value={this.state.playerCount} onChange={this.handlePlayerCountChange}/>
-                <label htmlFor="availableTime">Desired Playing Time</label>
-                <input type="text" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
-                <label htmlFor="order">Order results by:</label>
-                <select name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
-                    <option value="myRating">My Rating</option>
-                    <option value="bggRating">Overall BGG Rating</option>
-                    <option value="geekRating">BGG "Geek Rating"</option>
-                </select>
-                <button type="button" onClick={this.handleSubmit}>Get recommendations!</button>
-                {this.state.given ? <RecommendationList games={this.state.recommendations}/> : null}
+                <div className="form-section">
+                    <label htmlFor="playerCount">Number of Players</label>
+                    <input type="number" name="playerCount" value={this.state.playerCount} onChange={this.handlePlayerCountChange}/>
+                    <label htmlFor="availableTime">Desired Playing Time (minutes)</label>
+                    <input type="text" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
+                    <label htmlFor="order">Order results by:</label>
+                    <select name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
+                        <option value="myRating">My Rating</option>
+                        <option value="bggRating">Overall BGG Rating</option>
+                        <option value="geekRating">BGG "Geek Rating"</option>
+                    </select>
+                    <button type="button" onClick={this.handleSubmit}>Get recommendations!</button>
+                </div>
+                {this.state.given ? <RecommendationList games={this.state.recommendations} /> : null}
             </div>
         );
     }
 }
 
 class RecommendationList extends Component {
+    constructor(props) {
+        super(props);
+        this.gamesPerPage = 10;
+        var lastPage = Math.ceil(this.props.games.length / this.gamesPerPage);
+
+        this.first = this.first.bind(this);
+        this.next = this.next.bind(this);
+        this.last = this.last.bind(this);
+        this.prev = this.prev.bind(this);
+        this.state = {page: 1, lastPage};
+    }
+
+    componentWillReceiveProps() {
+        this.setState({page: 1});
+    }
+
+    componentDidUpdate() {
+        var lastPage = Math.ceil(this.props.games.length / this.gamesPerPage);
+        if (this.state.lastPage !== lastPage) {
+            this.setState({lastPage});
+        }
+    }
+
+    first() {
+        this.setState({page: 1});
+    }
+
+    next() {
+        var nextPage = Math.min(this.state.page + 1, this.state.lastPage);
+        this.setState({page: nextPage});
+    }
+
+    last() {
+        this.setState({page: this.state.lastPage});
+    }
+
+    prev() {
+        this.setState({page: Math.max(1, this.state.page - 1)});
+    }
+
     convertRating(rating, precision, fallback) {
         if (rating == null) {
             return fallback || "not rated";
@@ -161,7 +234,13 @@ class RecommendationList extends Component {
         if (this.props.games.length) {
             return (
                 <div>
-                    <h3>Recommended Games</h3>
+                    <h3>Recommended Games - page {this.state.page} of {this.state.lastPage}</h3>
+                    <div className="pagination-buttons">
+                        <button onClick={this.first} disabled={this.state.page === 1}>|&lt;</button>
+                        <button onClick={this.prev} disabled={this.state.page === 1}>&lt;</button>
+                        <button onClick={this.next} disabled={this.state.page === this.state.lastPage}>&gt;</button>
+                        <button onClick={this.last} disabled={this.state.page === this.state.lastPage}>&gt;|</button>
+                    </div>
                     <table className="gamelist">
                         <thead>
                             <tr>
@@ -174,7 +253,7 @@ class RecommendationList extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.props.games.map(game => (
+                            {this.props.games.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
                                 <tr key={game.id}>
                                     <td>{game.name}</td>
                                     <td><img alt={`${game.name}`} src={game.thumbnail} /></td>
