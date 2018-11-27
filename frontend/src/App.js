@@ -10,7 +10,8 @@ class App extends Component {
         this.handleWantImportSubmit = this.handleWantImportSubmit.bind(this);
         this.handleUserNameChange = this.handleUserNameChange.bind(this);
         this.handleImportSubmit = this.handleImportSubmit.bind(this);
-        this.state = {username: "", data: null, collections: 0, importWanted: true, showForm: false};
+        this.closeBox = this.closeBox.bind(this);
+        this.state = {username: "", data: null, collections: 0, importWanted: true, showForm: false, failure: false};
     }
 
     handleCheckboxChange(event) {
@@ -26,10 +27,28 @@ class App extends Component {
     }
 
     handleImportSubmit() {
-        this.setState({data: [], loading: true, importWanted: false, showForm: false});
+        this.setState({data: [], loading: true, importWanted: false, showForm: false, failure: false});
         fetch(backendUrl+this.state.username)
-            .then(response => response.json())
-            .then(json => this.setState(prevState => ({data: [{username: prevState.username, data: json}], loading: false})));
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                else {
+                    this.setState({failure: true, loading: false});
+                }
+            })
+            .then(json => {
+                if (json && json.length) {
+                    this.setState(prevState => ({data: [{username: prevState.username, data: json}], loading: false}));
+                }
+                else {
+                    this.setState({failure: true, loading: false});
+                }
+            });
+    }
+
+    closeBox() {
+        this.setState({failure: false});
     }
 
     render() {
@@ -37,6 +56,7 @@ class App extends Component {
             <div className="App">
                 <h1>Find a boardgame to play!</h1>
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
+                {this.state.failure ? <FailureMessage close={this.closeBox} /> : null}
                 <CollectionInfo data={this.state.data}/>
                 <div className="form-section">
                     <label htmlFor="importCheck">Do you want to import a new collection?</label>
@@ -51,6 +71,17 @@ class App extends Component {
                 <Preferences data={this.state.data.reduce((acc, userdata) =>acc.concat(userdata.data), [])}/> : null}
             </div>
         );
+    }
+}
+
+class FailureMessage extends Component {
+    render() {
+        return (
+            <div className="failure">
+                <p>Failed to load - please try again!</p>
+                <div class="close-box" onClick={this.props.close}>X</div>
+            </div>
+        )
     }
 }
 
