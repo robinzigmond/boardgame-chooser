@@ -207,7 +207,10 @@ class Preferences extends Component {
                     </select>
                     <button type="button" onClick={this.handleSubmit}>Get recommendations!</button>
                 </div>
-                {this.state.given ? <RecommendationList games={this.state.recommendations} /> : null}
+                {this.state.given ?
+                <RecommendationList games={this.state.recommendations}
+                key={this.state.recommendations.map(game => game.id).join(",")}/>
+                : null}
             </div>
         );
     }
@@ -234,13 +237,7 @@ class RecommendationList extends Component {
                         showFilters: false};
     }
 
-    componentWillMount() {
-        this.initialiseFlags();
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({games: this.props.games, filteredGames: nextProps.games, page: 1, flags: {},
-                        showFilters: false});
+    componentDidMount() {
         this.initialiseFlags();
     }
 
@@ -363,6 +360,7 @@ class RecommendationList extends Component {
                     <FilterList games={this.state.filteredGames} updateFilters={this.updateFilters}
                     currentFlags={this.state.flags[this.state.showFilters]}
                     close={() => {this.setState({showFilters: false})}}
+                    key={this.state.filteredGames.map(game=>game.id).join(",")}
                     filterType={this.state.showFilters}/>
                     : null}
                 </div>
@@ -398,12 +396,8 @@ class FilterList extends Component {
         this.state = {itemNames: []}
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.getGames(this.props);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.getGames(nextProps);
     }
 
     getGames(props) {
