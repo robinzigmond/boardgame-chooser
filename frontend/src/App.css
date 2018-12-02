@@ -30,7 +30,7 @@ html, body {
     border: 3px solid black;
 }
 
-.failure .close-box {
+.close-box {
     position: absolute;
     right: 10px;
     bottom: 10px;
@@ -101,6 +101,7 @@ html, body {
 
 .pagination-buttons {
     margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 table.gamelist {
@@ -127,4 +128,39 @@ table.gamelist thead th, table.gamelist tbody td {
 table.gamelist img {
     display: block;
     width: 100px;
+}
+
+.game-list {
+    position: relative;
+}
+
+.filter-option {
+    cursor: pointer;
+    font-weight: bold;
+    list-style-type: none;
+}
+
+.filter-list {
+    position: fixed;
+    width: 300px;
+    max-width: 80vw;
+    max-height: 80vh;
+    top: 50vh;
+    left: 50vw;
+    overflow-y: auto;
+    padding: 20px 20px 50px 20px;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    color: black;
+    border: 3px solid black;
+}
+
+.wrapper {
+    position: relative;
+    height: 100%;
+}
+
+.filter-list .close-box {
+    bottom: -40px;
+    right: 0px;
 }

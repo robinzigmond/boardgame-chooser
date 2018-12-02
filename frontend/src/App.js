@@ -219,18 +219,29 @@ class RecommendationList extends Component {
         this.gamesPerPage = 10;
         var lastPage = Math.ceil(this.props.games.length / this.gamesPerPage);
 
+        this.filters = ["categories", "families", "mechanics"];
+
+        this.initialiseFlags = this.initialiseFlags.bind(this);
+
         this.first = this.first.bind(this);
         this.next = this.next.bind(this);
         this.last = this.last.bind(this);
         this.prev = this.prev.bind(this);
-        this.updateCategoryFilters = this.updateCategoryFilters.bind(this);
+        this.updateFilters = this.updateFilters.bind(this);
         this.doFilters = this.doFilters.bind(this);
 
-        this.state = {games: this.props.games, filteredGames: this.props.games, page: 1, lastPage, flags: {}};
+        this.state = {games: this.props.games, filteredGames: this.props.games, page: 1, lastPage, flags: {},
+                        showFilters: false};
+    }
+
+    componentWillMount() {
+        this.initialiseFlags();
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({games: this.props.games, filteredGames: nextProps.games, page: 1, flags: {}});
+        this.setState({games: this.props.games, filteredGames: nextProps.games, page: 1, flags: {},
+                        showFilters: false});
+        this.initialiseFlags();
     }
 
     componentDidUpdate() {
@@ -238,6 +249,14 @@ class RecommendationList extends Component {
         if (this.state.lastPage !== lastPage) {
             this.setState({lastPage});
         }
+    }
+
+    initialiseFlags() {
+        var flags = {};
+        this.filters.forEach(filter => {
+            flags[filter] = {};
+        });
+        this.setState({flags});
     }
 
     first() {
@@ -264,42 +283,46 @@ class RecommendationList extends Component {
         return (+rating).toFixed(precision)
     }
 
-    updateCategoryFilters(categoryName, flag=0) {
+    updateFilters(itemName, filterName, flag=0) {
         var flags = this.state.flags;
-        flags[categoryName] = flag;
-        this.setState({flags}, this.doFilters);
+        flags[filterName][itemName] = flag;
+        this.setState({flags, page: 1}, this.doFilters);
     }
 
     doFilters() {
         // flag values: +1 - required, -1 - banned, 0 - neither
         var {flags, games} = this.state;
-        for (let category in flags) {
-            switch(flags[category]) {
-                case 1:
-                    games = games.filter(game => game.categories.includes(category));
-                    break;
-                case -1:
-                    games = games.filter(game => !game.categories.includes(category));
-                    break;
-                case 0:
-                default:
-                    break;                
+
+        this.filters.forEach(filter => {
+            for (let item in flags[filter]) {
+                switch(flags[filter][item]) {
+                    case 1:
+                        games = games.filter(game => game[filter].includes(item));
+                        break;
+                    case -1:
+                        games = games.filter(game => !game[filter].includes(item));
+                        break;
+                    case 0:
+                    default:
+                        break;                
+                }
             }
-        }
+        });
         this.setState({filteredGames: games});
     }
 
     render() {
         if (this.state.games.length) {
             return (
-                <div>
-                    <h3>Recommended Games - page {this.state.page} of {this.state.lastPage}</h3>
-                    <div className="pagination-buttons">
-                        <button onClick={this.first} disabled={this.state.page === 1}>|&lt;</button>
-                        <button onClick={this.prev} disabled={this.state.page === 1}>&lt;</button>
-                        <button onClick={this.next} disabled={this.state.page === this.state.lastPage}>&gt;</button>
-                        <button onClick={this.last} disabled={this.state.page === this.state.lastPage}>&gt;|</button>
-                    </div>
+                <div className="game-list">
+                    <h3>
+                        Recommended Games
+                        {this.state.lastPage > 1 ? `- page ${this.state.page} of ${this.state.lastPage}` : null}
+                    </h3>
+                    {this.state.lastPage > 1 ? 
+                    <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
+                    onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
+                    : null}
                     <table className="gamelist">
                         <thead>
                             <tr>
@@ -324,7 +347,24 @@ class RecommendationList extends Component {
                             ))}
                         </tbody>
                     </table>
-                    <CategoryList games={this.state.filteredGames} updateFilters={this.updateCategoryFilters} currentFlags={this.state.flags}/>
+                    {this.state.lastPage > 1 ? 
+                    <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
+                    onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
+                    : null}
+                    <div>
+                        <p>Filter results by:</p>
+                        {this.filters.map((filter, index) =>
+                            <ul key={index}>
+                                <li className="filter-option" onClick={() => this.setState({showFilters: filter})}>{filter}</li>
+                            </ul>
+                        )}
+                    </div>
+                    {this.state.showFilters ?
+                    <FilterList games={this.state.filteredGames} updateFilters={this.updateFilters}
+                    currentFlags={this.state.flags[this.state.showFilters]}
+                    close={() => {this.setState({showFilters: false})}}
+                    filterType={this.state.showFilters}/>
+                    : null}
                 </div>
             )            
         }
@@ -336,65 +376,85 @@ class RecommendationList extends Component {
     }
 }
 
-class CategoryList extends Component {
+class Pagination extends Component {
+    render() {
+        return (
+            <div className="pagination-buttons">
+                <button onClick={this.props.first} disabled={this.props.onFirst}>|&lt;</button>
+                <button onClick={this.props.prev} disabled={this.props.onFirst}>&lt;</button>
+                <button onClick={this.props.next} disabled={this.props.onLast}>&gt;</button>
+                <button onClick={this.props.last} disabled={this.props.onLast}>&gt;|</button>
+            </div>
+        );
+    }
+}
+
+class FilterList extends Component {
     constructor(props) {
         super(props);
 
         this.updateFilters = this.updateFilters.bind(this);
         this.getGames = this.getGames.bind(this);
-
-        this.getGames(props);
+        this.state = {itemNames: []}
     }
 
-    getGames(props) {
-        this.categoryNames = new Set();
-        props.games.forEach(
-            (game) => {
-                game.categories.forEach(
-                    (category) => {
-                        this.categoryNames.add(category);
-                    }
-                );
-            }
-        );
-        for (var category in props.currentFlags) {
-            if (props.currentFlags[category]) {
-                this.categoryNames.add(category);
-            }
-        }
+    componentWillMount() {
+        this.getGames(this.props);
     }
 
     componentWillReceiveProps(nextProps) {
         this.getGames(nextProps);
     }
 
+    getGames(props) {
+        var itemNames = new Set();
+        props.games.forEach(
+            (game) => {
+                game[this.props.filterType].forEach(
+                    (item) => {
+                        itemNames.add(item);
+                    }
+                );
+            }
+        );
+        for (var item in props.currentFlags) {
+            if (props.currentFlags[item]) {
+                itemNames.add(item);
+            }
+        }
+        this.setState({itemNames});
+    }
+
     updateFilters(event, name, status) {
         if (event.target.checked) {
-            this.props.updateFilters(name, status);
+            this.props.updateFilters(name, this.props.filterType, status);
         }
         else {
-            this.props.updateFilters(name);
+            this.props.updateFilters(name, this.props.filterType);
         }
     }
 
     render() {
         return (
-            <div>
-                {Array.from(this.categoryNames).map(
-                    (name, index) => (
-                        <div key={index}>
-                            <span>{name}:  </span>
-                            <label htmlFor={`${name}Required`}>Require</label>
-                            <input type="checkbox" name={`${name}Required`}
-                            onChange={(event) => this.updateFilters(event, name, 1)}
-                            checked={this.props.currentFlags[name] === 1}/>
-                            <label htmlFor={`${name}Banned`}>Remove</label>
-                            <input type="checkbox" name={`${name}Banned`}
-                            onChange={(event) => this.updateFilters(event, name, -1)}
-                            checked={this.props.currentFlags[name] === -1} />
-                        </div>
-                    )
-                )}
+            <div className="filter-list">
+                <div className="wrapper">
+                    <div className="close-box" onClick={this.props.close}>X</div>
+                    {Array.from(this.state.itemNames).sort().map(
+                        (name, index) => (
+                            <div key={index}>
+                                <span>{name}:  </span>
+                                <label htmlFor={`${name}Required`}>Require</label>
+                                <input type="checkbox" name={`${name}Required`}
+                                onChange={(event) => this.updateFilters(event, name, 1)}
+                                checked={this.props.currentFlags[name] === 1}/>
+                                <label htmlFor={`${name}Banned`}>Remove</label>
+                                <input type="checkbox" name={`${name}Banned`}
+                                onChange={(event) => this.updateFilters(event, name, -1)}
+                                checked={this.props.currentFlags[name] === -1} />
+                            </div>
+                        )
+                    )}
+                </div>
             </div>
         );
     }
