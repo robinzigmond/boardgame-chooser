@@ -84,8 +84,7 @@ class App extends Component {
                         userdata.data.forEach(game => {
                             var overlap = acc.find(gm => gm.id === game.id)
                             if (overlap) {
-                                overlap.ratings[userdata.username] = overlap.my_rating;
-                                delete overlap.my_rating;
+                                overlap.ratings[userdata.username] = game.my_rating;
                             }
                             else {
                                 game.ratings = {};
