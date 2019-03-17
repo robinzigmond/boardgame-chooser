@@ -8,7 +8,7 @@ class Preferences extends Component {
         this.handleAvailableTimeChange = this.handleAvailableTimeChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {playerCount: 4, availableTime: 30, gameOrder: "myRating", recommendations: [], given: false};
+        this.state = {playerCount: 4, availableTime: 30, gameOrder: `rating${Object.keys(this.props.data[0].ratings)[0]}`, recommendations: [], given: false};
     }
 
     handlePlayerCountChange(event) {
@@ -20,7 +20,7 @@ class Preferences extends Component {
     }
 
     handleOrderChange(event) {
-        this.setState({gameOrder: event.target.value});
+        this.setState({gameOrder: event.target.value}, this.handleSubmit);
     }
 
     handleSubmit() {
@@ -37,9 +37,9 @@ class Preferences extends Component {
             case "geekRating":
                 sortFunction = (a,b) => (b.stats.bayesaverage - a.stats.bayesaverage);
                 break;
-            case "myRating":
             default:
-                sortFunction = (a,b) => (b.my_rating - a.my_rating);
+                let userToRate = this.state.gameOrder.slice(6);
+                sortFunction = (a,b) => ((b.ratings[userToRate] || 0) - (a.ratings[userToRate] || 0));
                 break;
         }
         foundGames.sort(sortFunction);
@@ -50,6 +50,14 @@ class Preferences extends Component {
     }
 
     render() {
+        var ratingOrders;
+        var users = Object.keys(this.props.data[0].ratings);
+        if (users.length > 1){
+            ratingOrders = users.map(user => ({value: `rating${user}`, text: `${user}'s rating`}));
+        }
+        else {
+            ratingOrders = [{value: `${users[0]}'s rating`, text: "My Rating"}];
+        }
         return (
             <div>
                 <div className="form-section">
@@ -59,7 +67,9 @@ class Preferences extends Component {
                     <input type="text" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
                     <label htmlFor="order">Order results by:</label>
                     <select name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
-                        <option value="myRating">My Rating</option>
+                        {ratingOrders.map(order => (
+                            <option key={order.value} value={order.value}>{order.text}</option>  
+                        ))}
                         <option value="bggRating">Overall BGG Rating</option>
                         <option value="geekRating">BGG "Geek Rating"</option>
                     </select>
@@ -67,7 +77,7 @@ class Preferences extends Component {
                 </div>
                 {this.state.given ?
                 <RecommendationList games={this.state.recommendations}
-                key={this.state.recommendations.map(game => game.id).join(",")}/>
+                key={this.state.recommendations.map(game => game.id).join(",")} users={users}/>
                 : null}
             </div>
         );

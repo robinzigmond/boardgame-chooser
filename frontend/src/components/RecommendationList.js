@@ -96,11 +96,18 @@ class RecommendationList extends Component {
 
     render() {
         if (this.state.games.length) {
+            var ratingColumns;
+            if (this.props.users.length > 1) {
+                ratingColumns = this.props.users.map(username => ({colname: `${username}'s rating`, fieldref: username}));
+            }
+            else {
+                ratingColumns = [{colname: "Your rating", fieldref: this.props.users[0]}];
+            }
             return (
                 <div className="game-list">
                     <h3>
                         Recommended Games
-                        {this.state.lastPage > 1 ? `- page ${this.state.page} of ${this.state.lastPage}` : null}
+                        {this.state.lastPage > 1 ? ` - page ${this.state.page} of ${this.state.lastPage}` : null}
                     </h3>
                     {this.state.lastPage > 1 ? 
                     <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
@@ -111,7 +118,9 @@ class RecommendationList extends Component {
                             <tr>
                                 <th>Name</th>
                                 <th>Image</th>
-                                <th>Your rating</th>
+                                {ratingColumns.map(col => (
+                                    <th key={col.fieldref}>{col.colname}</th>   
+                                ))}
                                 <th>Overall BGG rating</th>
                                 <th>BGG "Geek Rating"</th>
                                 <th>BGG ranking list position</th>
@@ -122,7 +131,9 @@ class RecommendationList extends Component {
                                 <tr key={game.id}>
                                     <td>{game.name}</td>
                                     <td><img alt={`${game.name}`} src={game.thumbnail} /></td>
-                                    <td>{this.convertRating(game.my_rating, 1)}</td>
+                                    {ratingColumns.map(col => (
+                                        <td key={col.fieldref}>{this.convertRating(game.ratings[col.fieldref], 1)}</td>
+                                    ))}
                                     <td>{this.convertRating(game.stats.average, 2)}</td>
                                     <td>{this.convertRating(game.stats.bayesaverage, 2)}</td>
                                     <td>{this.convertRating(game.stats.ranks[0].value, 0, "not ranked")}</td>

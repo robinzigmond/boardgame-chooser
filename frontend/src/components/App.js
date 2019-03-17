@@ -32,7 +32,8 @@ class App extends Component {
     }
 
     handleImportSubmit() {
-        this.setState({data: [], loading: true, importWanted: false, showForm: false, failure: false});
+        this.setState({data: this.state.data || [], loading: true, importWanted: false,
+                        showForm: false, failure: false});
         fetch(backendUrl+this.state.username)
             .then(response => {
                 if (response.ok) {
@@ -44,7 +45,12 @@ class App extends Component {
             })
             .then(json => {
                 if (json && json.length) {
-                    this.setState(prevState => ({data: [{username: prevState.username, data: json}], loading: false}));
+                    this.setState(prevState => {
+                        var prevData = prevState.data;
+                        var newData = {username: prevState.username, data: json};
+                        prevData.push(newData);
+                        return {data: prevData, loading: false};
+                    });
                 }
                 else {
                     this.setState({failure: true, loading: false});
@@ -73,7 +79,26 @@ class App extends Component {
                 : null}
                 {this.state.loading ? <Loader /> : null}
                 {!this.state.loading && this.state.data && this.state.data.length && !this.state.showForm ?
-                <Preferences data={this.state.data.reduce((acc, userdata) =>acc.concat(userdata.data), [])}/> : null}
+                <Preferences data={this.state.data.reduce(
+                    (acc, userdata) => {
+                        userdata.data.forEach(game => {
+                            var overlap = acc.find(gm => gm.id === game.id)
+                            if (overlap) {
+                                overlap.ratings[userdata.username] = overlap.my_rating;
+                                delete overlap.my_rating;
+                            }
+                            else {
+                                game.ratings = {};
+                                this.state.data.map(user => user.username).forEach(name => {
+                                    game.ratings[name] = undefined;
+                                });
+                                game.ratings[userdata.username] = game.my_rating;
+                                acc.push(game);
+                            }
+                        });
+                        return acc;
+                    }, []
+                )}/> : null}
             </div>
         );
     }
