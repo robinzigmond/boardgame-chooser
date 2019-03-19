@@ -31,3 +31,22 @@ def get_collection(username):
 
     print("user {} has {} games owned".format(username, len(collection)))
     return json.dumps(collection)
+
+@app.route("/check_ratings/<username>/<game_list>")
+def check_rating(username, game_list):
+    try:
+        games_in_collection = bgg.collection(username, rated=True).items
+    except BGGItemNotFoundError:
+        print("user {} doesn't appear to exist".format(username))
+        return json.dumps(None)
+
+    games_asked = list(map(int, game_list.split("-")))
+
+    ratings = {}
+    for game in games_in_collection:
+        the_id = game.id
+        if the_id in games_asked:
+            print("user {} rates game {} (id {}) as {}".format(username, game.name, the_id, game.rating))
+            ratings[the_id] = game.rating
+
+    return json.dumps(ratings)

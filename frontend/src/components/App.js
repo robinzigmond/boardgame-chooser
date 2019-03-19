@@ -6,7 +6,7 @@ import ImportSelect from './ImportSelect.js';
 import Loader from './Loader.js';
 import Preferences from './Preferences.js';
 
-const backendUrl = "http://127.0.0.1:5000/collection/";
+const backendUrl = "http://127.0.0.1:5000";
 
 class App extends Component {
     constructor(props) {
@@ -34,7 +34,7 @@ class App extends Component {
     handleImportSubmit() {
         this.setState({data: this.state.data || [], loading: true, importWanted: false,
                         showForm: false, failure: false});
-        fetch(backendUrl+this.state.username)
+        fetch(`${backendUrl}/collection/${this.state.username}`)
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -45,8 +45,34 @@ class App extends Component {
             })
             .then(json => {
                 if (json && json.length) {
+                    var params = json.map(gm => ""+gm.id).join("-");
+                    // more care needs to be taken over the above, a very large collection could easily
+                    // lead to a URL of over the permitted 2048(ish) characters. Probably should split into
+                    // sets of ~3-400 (perhaps less, seems to go quickly enough now)
                     this.setState(prevState => {
                         var prevData = prevState.data;
+                        // not working still - but setting of state here actually looks ok.
+                        // Must be going wrong in the reduce that assembles the data for the
+                        // table - but now see no reason not to just keep a single list of games
+                        // in the state, with (along with the global info), an "owned" property holding
+                        // a list of the owners, and a "ratings" property holding an object mapping
+                        // currently loaded users to their rating
+                        (async function loop() {
+                        for (let userData of prevData) {
+                            var resp = await fetch(`${backendUrl}/check_ratings/${userData.username}/${params}`);
+                            if (!resp.ok) {
+                                // deal with error somehow, come back to later
+                            }
+                            var ratingInfo = await resp.json();
+                            for (let id in ratingInfo) {
+                                if (ratingInfo[id]) {
+                                    let ratedGame = Object.assign({}, json.find(gm => gm.id === +id));
+                                    ratedGame.my_rating = ratingInfo[id];
+                                    userData.data.push(ratedGame);
+                                }
+                            }
+                        }
+                        })()
                         var newData = {username: prevState.username, data: json};
                         prevData.push(newData);
                         return {data: prevData, loading: false};
@@ -80,6 +106,8 @@ class App extends Component {
                 {this.state.loading ? <Loader /> : null}
                 {!this.state.loading && this.state.data && this.state.data.length && !this.state.showForm ?
                 <Preferences data={this.state.data.reduce(
+                    // see above - intend to replace this with something simple, moving the logic into the
+                    // App's state
                     (acc, userdata) => {
                         userdata.data.forEach(game => {
                             var overlap = acc.find(gm => gm.id === game.id)
