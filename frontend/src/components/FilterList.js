@@ -14,7 +14,7 @@ class FilterList extends Component {
     }
 
     getGames(props) {
-        var itemNames = new Set();
+        let itemNames = new Set();
         props.games.forEach(
             (game) => {
                 game[this.props.filterType].forEach(
@@ -24,7 +24,7 @@ class FilterList extends Component {
                 );
             }
         );
-        for (var item in props.currentFlags) {
+        for (let item in props.currentFlags) {
             if (props.currentFlags[item]) {
                 itemNames.add(item);
             }

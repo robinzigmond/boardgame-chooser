@@ -16,7 +16,8 @@ class App extends Component {
         this.handleUserNameChange = this.handleUserNameChange.bind(this);
         this.handleImportSubmit = this.handleImportSubmit.bind(this);
         this.closeBox = this.closeBox.bind(this);
-        this.state = {username: "", data: null, collections: 0, importWanted: true, showForm: false, failure: false};
+        this.state = {username: "", data: {games: [], users: []}, collections: 0, importWanted: true,
+                        showForm: false, failure: false};
     }
 
     handleCheckboxChange(event) {
@@ -31,57 +32,65 @@ class App extends Component {
         this.setState({username: event.target.value});
     }
 
-    handleImportSubmit() {
+    async handleImportSubmit() {
         this.setState({data: this.state.data || [], loading: true, importWanted: false,
                         showForm: false, failure: false});
-        fetch(`${backendUrl}/collection/${this.state.username}`)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                else {
-                    this.setState({failure: true, loading: false});
-                }
-            })
-            .then(json => {
-                if (json && json.length) {
-                    var params = json.map(gm => ""+gm.id).join("-");
-                    // more care needs to be taken over the above, a very large collection could easily
-                    // lead to a URL of over the permitted 2048(ish) characters. Probably should split into
-                    // sets of ~3-400 (perhaps less, seems to go quickly enough now)
-                    this.setState(prevState => {
-                        var prevData = prevState.data;
-                        // not working still - but setting of state here actually looks ok.
-                        // Must be going wrong in the reduce that assembles the data for the
-                        // table - but now see no reason not to just keep a single list of games
-                        // in the state, with (along with the global info), an "owned" property holding
-                        // a list of the owners, and a "ratings" property holding an object mapping
-                        // currently loaded users to their rating
-                        (async function loop() {
-                        for (let userData of prevData) {
-                            var resp = await fetch(`${backendUrl}/check_ratings/${userData.username}/${params}`);
-                            if (!resp.ok) {
-                                // deal with error somehow, come back to later
-                            }
-                            var ratingInfo = await resp.json();
-                            for (let id in ratingInfo) {
-                                if (ratingInfo[id]) {
-                                    let ratedGame = Object.assign({}, json.find(gm => gm.id === +id));
-                                    ratedGame.my_rating = ratingInfo[id];
-                                    userData.data.push(ratedGame);
+        
+        let collection = await fetch(`${backendUrl}/collection/${this.state.username}`);
+        if (!collection.ok) {
+            this.setState({failure: true, loading: false});
+            return;
+        }
+        let data = await collection.json();
+        if (data && data.length) {
+            let prevData = this.state.data;
+            prevData.users.push(this.state.username);
+            let newGameIds = data.map(game => game.id);
+            let params = newGameIds.map(String).join("-");
+            // revisit the above later, to avoid the potential for a too-long URL (split into chunks)
+            let oldGames = prevData.games;
+            let oldGameIds = oldGames.map(game => game.id);
+            let gamesToAdd = data.filter(game => !oldGameIds.includes(game.id));
+            (async () => {
+                // first loop through all existing users and find if they've rated any of the new games
+                for (let user of prevData.users) {
+                    let resp = await fetch(`${backendUrl}/check_ratings/${user}/${params}`);
+                    if (!resp.ok) {
+                        // deal with error somehow, come back to later
+                    }
+                    let ratingInfo = await resp.json();
+                    for (let id in ratingInfo) {
+                        if (ratingInfo[id] !== null) {
+                            let ratedGame = gamesToAdd.find(gm => gm.id === +id);
+                            if (ratedGame) {
+                                if (ratedGame.ratings) {
+                                    ratedGame.ratings[user] = ratingInfo[id];
+                                }
+                                else {
+                                    ratedGame.ratings = {[user]: ratingInfo[id]};
                                 }
                             }
                         }
-                        })()
-                        var newData = {username: prevState.username, data: json};
-                        prevData.push(newData);
-                        return {data: prevData, loading: false};
-                    });
+                    }
+                }
+            })()
+            let updatedGames = oldGames.concat(gamesToAdd);
+            // finally add ratings of the just-added user for all games on the new list
+            // (even those not in the new user's collection)
+            for (let game of data) {
+                let foundIt = updatedGames.find(gm => gm.id === game.id); // should always exist
+                if (foundIt.ratings) {
+                    foundIt.ratings[this.state.username] = game.my_rating;
                 }
                 else {
-                    this.setState({failure: true, loading: false});
+                    foundIt.ratings = {[this.state.username]: game.my_rating};
                 }
-            });
+            }
+            this.setState({data: {users: prevData.users, games: updatedGames}, loading: false});
+        }
+        else {
+            this.setState({failure: true, loading: false});
+        }
     }
 
     closeBox() {
@@ -94,7 +103,7 @@ class App extends Component {
                 <h1>Find a boardgame to play!</h1>
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
                 {this.state.failure ? <FailureMessage close={this.closeBox} /> : null}
-                <CollectionInfo data={this.state.data}/>
+                <CollectionInfo data={this.state.data.users}/>
                 <div className="form-section">
                     <label htmlFor="importCheck">Do you want to import a new collection?</label>
                     <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange} checked={this.state.importWanted}/>
@@ -104,28 +113,8 @@ class App extends Component {
                 <ImportSelect handleChange={this.handleUserNameChange} handleSubmit={this.handleImportSubmit}/>
                 : null}
                 {this.state.loading ? <Loader /> : null}
-                {!this.state.loading && this.state.data && this.state.data.length && !this.state.showForm ?
-                <Preferences data={this.state.data.reduce(
-                    // see above - intend to replace this with something simple, moving the logic into the
-                    // App's state
-                    (acc, userdata) => {
-                        userdata.data.forEach(game => {
-                            var overlap = acc.find(gm => gm.id === game.id)
-                            if (overlap) {
-                                overlap.ratings[userdata.username] = game.my_rating;
-                            }
-                            else {
-                                game.ratings = {};
-                                this.state.data.map(user => user.username).forEach(name => {
-                                    game.ratings[name] = undefined;
-                                });
-                                game.ratings[userdata.username] = game.my_rating;
-                                acc.push(game);
-                            }
-                        });
-                        return acc;
-                    }, []
-                )}/> : null}
+                {!this.state.loading && this.state.data.games.length && !this.state.showForm ?
+                <Preferences data={this.state.data.games} users={this.state.data.users} /> : null}
             </div>
         );
     }

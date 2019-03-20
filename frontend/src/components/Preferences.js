@@ -24,18 +24,15 @@ class Preferences extends Component {
     }
 
     handleSubmit() {
-        var foundGames = this.props.data.filter(game =>
+        let foundGames = this.props.data.filter(game =>
             game.minplayers <= this.state.playerCount
             && game.maxplayers >= this.state.playerCount
             && game.minplaytime <= this.state.availableTime
             && game.maxplaytime >= this.state.availableTime);
-        var sortFunction;
+        let sortFunction;
         switch(this.state.gameOrder) {
-            case "bggRating":
-                sortFunction = (a,b) => (b.stats.average - a.stats.average);
-                break;
-            case "geekRating":
-                sortFunction = (a,b) => (b.stats.bayesaverage - a.stats.bayesaverage);
+            case "bggRank":
+                sortFunction = (a,b) => ((a.stats.ranks[0].value || Infinity) - (b.stats.ranks[0].value || Infinity));
                 break;
             default:
                 let userToRate = this.state.gameOrder.slice(6);
@@ -50,8 +47,8 @@ class Preferences extends Component {
     }
 
     render() {
-        var ratingOrders;
-        var users = Object.keys(this.props.data[0].ratings);
+        let ratingOrders;
+        let users = this.props.users;
         if (users.length > 1){
             ratingOrders = users.map(user => ({value: `rating${user}`, text: `${user}'s rating`}));
         }
@@ -70,14 +67,14 @@ class Preferences extends Component {
                         {ratingOrders.map(order => (
                             <option key={order.value} value={order.value}>{order.text}</option>  
                         ))}
-                        <option value="bggRating">Overall BGG Rating</option>
-                        <option value="geekRating">BGG "Geek Rating"</option>
+                        <option value="bggRank">BGG ranking list position</option>
                     </select>
                     <button type="button" onClick={this.handleSubmit}>Get recommendations!</button>
                 </div>
                 {this.state.given ?
                 <RecommendationList games={this.state.recommendations}
-                key={this.state.recommendations.map(game => game.id).join(",")} users={users}/>
+                key={this.state.recommendations.map(game => game.id).join(",")} sorting={this.state.gameOrder}
+                numUsers={this.props.users.length}/>
                 : null}
             </div>
         );

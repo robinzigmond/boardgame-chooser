@@ -7,7 +7,7 @@ class ImportSelect extends Component {
     }
 
     render() {
-        var successMessage;
+        let successMessage;
         if (this.state.data && !this.state.loading) {
             if (this.state.data.length) {
                 successMessage = "Collection successfully loaded!";
