@@ -28,10 +28,12 @@ class RecommendationList extends Component {
     }
 
     componentDidUpdate() {
-        let lastPage = Math.ceil(this.state.filteredGames.length / this.gamesPerPage);
-        if (this.state.lastPage !== lastPage) {
-            this.setState({lastPage});
-        }
+        this.setState(state => {
+            let lastPage = Math.ceil(state.filteredGames.length / this.gamesPerPage);
+            if (state.lastPage !== lastPage) {
+                return {lastPage};
+            }
+        });
     }
 
     initialiseFlags() {
@@ -47,16 +49,18 @@ class RecommendationList extends Component {
     }
 
     next() {
-        let nextPage = Math.min(this.state.page + 1, this.state.lastPage);
-        this.setState({page: nextPage});
+        this.setState(state => {
+            let nextPage = Math.min(state.page + 1, state.lastPage);
+            return {page: nextPage};
+        });
     }
 
     last() {
-        this.setState({page: this.state.lastPage});
+        this.setState(state => ({page: state.lastPage}));
     }
 
     prev() {
-        this.setState({page: Math.max(1, this.state.page - 1)});
+        this.setState(state => ({page: Math.max(1, state.page - 1)}));
     }
 
     convertRating(rating, precision, fallback) {
@@ -67,31 +71,35 @@ class RecommendationList extends Component {
     }
 
     updateFilters(itemName, filterName, flag=0) {
-        let flags = this.state.flags;
-        flags[filterName][itemName] = flag;
-        this.setState({flags, page: 1}, this.doFilters);
+        this.setState(state => {
+            let flags = state.flags;
+            flags[filterName][itemName] = flag;
+            return {flags, page: 1};
+        }, this.doFilters);
     }
 
     doFilters() {
         // flag values: +1 - required, -1 - banned, 0 - neither
-        let {flags, games} = this.state;
+        this.setState(state => {
+            let {flags, games} = state;
 
-        this.filters.forEach(filter => {
-            for (let item in flags[filter]) {
-                switch(flags[filter][item]) {
-                    case 1:
-                        games = games.filter(game => game[filter].includes(item));
-                        break;
-                    case -1:
-                        games = games.filter(game => !game[filter].includes(item));
-                        break;
-                    case 0:
-                    default:
-                        break;                
+            this.filters.forEach(filter => {
+                for (let item in flags[filter]) {
+                    switch(flags[filter][item]) {
+                        case 1:
+                            games = games.filter(game => game[filter].includes(item));
+                            break;
+                        case -1:
+                            games = games.filter(game => !game[filter].includes(item));
+                            break;
+                        case 0:
+                        default:
+                            break;                
+                    }
                 }
-            }
+            });
+            return {filteredGames: games};
         });
-        this.setState({filteredGames: games});
     }
 
     render() {

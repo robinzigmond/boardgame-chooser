@@ -33,8 +33,8 @@ class App extends Component {
     }
 
     async handleImportSubmit() {
-        this.setState({data: this.state.data || [], loading: true, importWanted: false,
-                        showForm: false, failure: false});
+        this.setState(state => ({data: state.data || [], loading: true, importWanted: false,
+                                showForm: false, failure: false}));
         
         let collection = await fetch(`${backendUrl}/collection/${this.state.username}`);
         if (!collection.ok) {
@@ -46,34 +46,52 @@ class App extends Component {
             let prevData = this.state.data;
             prevData.users.push(this.state.username);
             let newGameIds = data.map(game => game.id);
-            let params = newGameIds.map(String).join("-");
-            // revisit the above later, to avoid the potential for a too-long URL (split into chunks)
+            // split ids into chunks, to completely avoid URL character limits in the API call
+            const chunkSize = 200;
+            let chunkedIds = [];
+            while (newGameIds.length > 0) {
+                let newChunk = [];
+                while (newChunk.length < chunkSize && newGameIds.length > 0) {
+                    newChunk.push(newGameIds.shift());
+                }
+                chunkedIds.push(newChunk);
+            }
             let oldGames = prevData.games;
             let oldGameIds = oldGames.map(game => game.id);
             let gamesToAdd = data.filter(game => !oldGameIds.includes(game.id));
+            let failure;
             (async () => {
                 // first loop through all existing users and find if they've rated any of the new games
                 for (let user of prevData.users) {
-                    let resp = await fetch(`${backendUrl}/check_ratings/${user}/${params}`);
-                    if (!resp.ok) {
-                        // deal with error somehow, come back to later
-                    }
-                    let ratingInfo = await resp.json();
-                    for (let id in ratingInfo) {
-                        if (ratingInfo[id] !== null) {
-                            let ratedGame = gamesToAdd.find(gm => gm.id === +id);
-                            if (ratedGame) {
-                                if (ratedGame.ratings) {
-                                    ratedGame.ratings[user] = ratingInfo[id];
-                                }
-                                else {
-                                    ratedGame.ratings = {[user]: ratingInfo[id]};
+                    for (let chunk of chunkedIds) {
+                        let params = chunk.map(String).join("-");
+                        let resp = await fetch(`${backendUrl}/check_ratings/${user}/${params}`);
+                        if (!resp.ok) {
+                            this.setState({failure: true, loading: false});
+                            failure = true;
+                            return;
+                        }
+                        let ratingInfo = await resp.json();
+                        for (let id in ratingInfo) {
+                            if (ratingInfo[id] !== null) {
+                                let ratedGame = gamesToAdd.find(gm => gm.id === +id);
+                                if (ratedGame) {
+                                    if (ratedGame.ratings) {
+                                        ratedGame.ratings[user] = ratingInfo[id];
+                                    }
+                                    else {
+                                        ratedGame.ratings = {[user]: ratingInfo[id]};
+                                    }
                                 }
                             }
                         }
                     }
                 }
             })()
+            if (failure) {
+                this.setState({failure: true, loading: false});
+                return;
+            }
             let updatedGames = oldGames.concat(gamesToAdd);
             // finally add ratings of the just-added user for all games on the new list
             // (even those not in the new user's collection)

@@ -14,22 +14,24 @@ class FilterList extends Component {
     }
 
     getGames(props) {
-        let itemNames = new Set();
-        props.games.forEach(
-            (game) => {
-                game[this.props.filterType].forEach(
-                    (item) => {
-                        itemNames.add(item);
-                    }
-                );
+        this.setState((prevState, thisProps) => {
+            let itemNames = new Set();
+            props.games.forEach(
+                (game) => {
+                    game[thisProps.filterType].forEach(
+                        (item) => {
+                            itemNames.add(item);
+                        }
+                    );
+                }
+            );
+            for (let item in props.currentFlags) {
+                if (props.currentFlags[item]) {
+                    itemNames.add(item);
+                }
             }
-        );
-        for (let item in props.currentFlags) {
-            if (props.currentFlags[item]) {
-                itemNames.add(item);
-            }
-        }
-        this.setState({itemNames});
+            return {itemNames};
+        });
     }
 
     updateFilters(event, name, status) {

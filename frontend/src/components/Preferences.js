@@ -24,25 +24,27 @@ class Preferences extends Component {
     }
 
     handleSubmit() {
-        let foundGames = this.props.data.filter(game =>
-            game.minplayers <= this.state.playerCount
-            && game.maxplayers >= this.state.playerCount
-            && game.minplaytime <= this.state.availableTime
-            && game.maxplaytime >= this.state.availableTime);
-        let sortFunction;
-        switch(this.state.gameOrder) {
-            case "bggRank":
-                sortFunction = (a,b) => ((a.stats.ranks[0].value || Infinity) - (b.stats.ranks[0].value || Infinity));
-                break;
-            default:
-                let userToRate = this.state.gameOrder.slice(6);
-                sortFunction = (a,b) => ((b.ratings[userToRate] || 0) - (a.ratings[userToRate] || 0));
-                break;
-        }
-        foundGames.sort(sortFunction);
-        this.setState({
-            given: true,
-            recommendations: foundGames
+        this.setState((state, props) => {
+            let foundGames = props.data.filter(game =>
+                game.minplayers <= state.playerCount
+                && game.maxplayers >= state.playerCount
+                && game.minplaytime <= state.availableTime
+                && game.maxplaytime >= state.availableTime);
+            let sortFunction;
+            switch(state.gameOrder) {
+                case "bggRank":
+                    sortFunction = (a,b) => ((a.stats.ranks[0].value || Infinity) - (b.stats.ranks[0].value || Infinity));
+                    break;
+                default:
+                    let userToRate = this.state.gameOrder.slice(6);
+                    sortFunction = (a,b) => ((b.ratings[userToRate] || 0) - (a.ratings[userToRate] || 0));
+                    break;
+            }
+            foundGames.sort(sortFunction);
+            return {
+                given: true,
+                recommendations: foundGames
+            };
         });
     }
 
