@@ -109,28 +109,46 @@ html, body {
 }
 
 table.gamelist {
-    border-collapse: collapse;
     border: 2px solid white;
+    border-radius: 30px;
     max-width: 80vw;
     margin: auto;
 }
 
 table.gamelist thead th {
     border-bottom: 3px solid white;
-    padding: 5px;
+    padding: 5px 15px;
 }
 
 table.gamelist tbody td {
     border-top: 1px solid white;
     padding: 8px;
+    width: 175px;
+}
+
+table.gamelist thead th:last-child, table.gamelist tbody td:last-child {
+    width: 100px;
 }
 
 table.gamelist thead th, table.gamelist tbody td {
     border-right: 1px solid white;
 }
 
+table.gamelist thead th:last-child, table.gamelist tbody td:last-child {
+    border-right: none;
+}
+
+table.gamelist a {
+    text-decoration: none;
+    color: #eddc23;
+}
+
 table.gamelist img {
     display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-bottom: -10px;
     width: 100px;
 }
 

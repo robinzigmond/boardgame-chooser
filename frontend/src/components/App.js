@@ -17,7 +17,7 @@ class App extends Component {
         this.handleImportSubmit = this.handleImportSubmit.bind(this);
         this.closeBox = this.closeBox.bind(this);
         this.state = {username: "", data: {games: [], users: []}, collections: 0, importWanted: true,
-                        showForm: false, failure: false};
+                        showForm: false, failure: false, showDuplicate: false};
     }
 
     handleCheckboxChange(event) {
@@ -33,10 +33,20 @@ class App extends Component {
     }
 
     async handleImportSubmit() {
-        this.setState(state => ({data: state.data || [], loading: true, importWanted: false,
-                                showForm: false, failure: false}));
+        if (this.state.data.users.includes(this.state.username)) {
+            this.setState({showDuplicate: true});
+            return;
+        }
+        this.setState(state => ({loading: true, importWanted: false, failure: false}));
         
-        let collection = await fetch(`${backendUrl}/collection/${this.state.username}`);
+        let collection;
+        try {
+            collection = await fetch(`${backendUrl}/collection/${this.state.username}`);
+        }
+        catch {
+            this.setState({failure: true, loading: false});
+            return;           
+        }
         if (!collection.ok) {
             this.setState({failure: true, loading: false});
             return;
@@ -104,7 +114,7 @@ class App extends Component {
                     foundIt.ratings = {[this.state.username]: game.my_rating};
                 }
             }
-            this.setState({data: {users: prevData.users, games: updatedGames}, loading: false});
+            this.setState({data: {users: prevData.users, games: updatedGames}, loading: false, showForm: false});
         }
         else {
             this.setState({failure: true, loading: false});
@@ -112,7 +122,12 @@ class App extends Component {
     }
 
     closeBox() {
-        this.setState({failure: false});
+        if (this.state.showDuplicate) {
+            this.setState({failure: false, showDuplicate: false, username: ""});
+        }
+        else {
+            this.setState({failure: false, showDuplicate: false});
+        }
     }
 
     render() {
@@ -121,6 +136,7 @@ class App extends Component {
                 <h1>Find a boardgame to play!</h1>
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
                 {this.state.failure ? <FailureMessage close={this.closeBox} /> : null}
+                {this.state.showDuplicate ? <FailureMessage close={this.closeBox} duplicate={true} /> : null}
                 <CollectionInfo data={this.state.data.users}/>
                 <div className="form-section">
                     <label htmlFor="importCheck">Do you want to import a new collection?</label>

@@ -126,19 +126,23 @@ class RecommendationList extends Component {
                     <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
                     onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
                     : null}
-                    <table className="gamelist">
+                    <table className="gamelist" cellSpacing="0">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Image</th>
+                                <th>Game</th>
                                 <th>{columnInfo.name}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {this.state.filteredGames.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
                                 <tr key={game.id}>
-                                    <td>{game.name}</td>
-                                    <td><img alt={`${game.name}`} src={game.thumbnail} /></td>
+                                    <td>
+                                        <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
+                                        rel="noopener noreferrer">
+                                            <img alt={`${game.name}`} src={game.thumbnail} />
+                                            <h4>{game.name}</h4>
+                                        </a>
+                                    </td>
                                     <td>{columnInfo.extract(game)}</td>
                                 </tr>
                             ))}
