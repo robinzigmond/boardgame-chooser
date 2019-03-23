@@ -105,7 +105,23 @@ html, body {
 }
 
 .pagination-buttons button {
+    border-radius: 5px;
+    border: 1px solid #eddc23;
+    width: 30px;
+    padding: 3px 5px;
+    margin: auto 3px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #eddc23;
+    background-color: #981234;
     cursor: pointer;
+}
+
+.pagination-buttons button:disabled {
+    background-color: #540123;
+    color: #bb2;
+    border-color: #bb2;
+    cursor: initial;
 }
 
 table.gamelist {
@@ -156,10 +172,20 @@ table.gamelist img {
     position: relative;
 }
 
-.filter-option {
+.filters {
+    max-width: 175px;
+    margin: auto;
+}
+
+.filters ul {
+    padding-inline-start: 0px;
+}
+
+.filters .filter-option {
     cursor: pointer;
     font-weight: bold;
     list-style-type: none;
+    margin: 5px auto;
 }
 
 .filter-list {
@@ -175,6 +201,15 @@ table.gamelist img {
     background-color: white;
     color: black;
     border: 3px solid black;
+}
+
+.filter-list .single-filter {
+    margin: 3px auto;
+    border-bottom: 1px dotted black;
+}
+
+.filter-list .single-filter .filter-name {
+    margin-right: 10px;
 }
 
 .wrapper {

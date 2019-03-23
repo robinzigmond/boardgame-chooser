@@ -152,13 +152,14 @@ class RecommendationList extends Component {
                     <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
                     onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
                     : null}
-                    <div>
+                    <div className="filters">
                         <p>Filter results by:</p>
-                        {this.filters.map((filter, index) =>
-                            <ul key={index}>
-                                <li className="filter-option" onClick={() => this.setState({showFilters: filter})}>{filter}</li>
-                            </ul>
-                        )}
+                        <ul>
+                            {this.filters.map((filter, index) =>
+                                <li key={index} className="filter-option"
+                                onClick={() => this.setState({showFilters: filter})}>{filter}</li>
+                            )}
+                        </ul>
                     </div>
                     {this.state.showFilters ?
                     <FilterList games={this.state.filteredGames} updateFilters={this.updateFilters}

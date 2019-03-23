@@ -7,6 +7,8 @@ class FilterList extends Component {
         this.updateFilters = this.updateFilters.bind(this);
         this.getGames = this.getGames.bind(this);
         this.state = {itemNames: []}
+
+        this.singularForms = {categories: "category", families: "family", mechanics: "mechanic"};
     }
 
     componentDidMount() {
@@ -48,10 +50,11 @@ class FilterList extends Component {
             <div className="filter-list">
                 <div className="wrapper">
                     <div className="close-box" onClick={this.props.close}>X</div>
+                    <h3>Filter games by {this.singularForms[this.props.filterType]}</h3>
                     {Array.from(this.state.itemNames).sort().map(
                         (name, index) => (
-                            <div key={index}>
-                                <span>{name}:  </span>
+                            <div key={index} className="single-filter">
+                                <span className="filter-name">{name}:  </span>
                                 <label htmlFor={`${name}Required`}>Require</label>
                                 <input type="checkbox" name={`${name}Required`}
                                 onChange={(event) => this.updateFilters(event, name, 1)}
