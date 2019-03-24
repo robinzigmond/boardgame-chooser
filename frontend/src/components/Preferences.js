@@ -60,18 +60,26 @@ class Preferences extends Component {
         return (
             <div>
                 <div className="form-section">
-                    <label htmlFor="playerCount">Number of Players</label>
-                    <input type="number" name="playerCount" value={this.state.playerCount} onChange={this.handlePlayerCountChange}/>
-                    <label htmlFor="availableTime">Desired Playing Time (minutes)</label>
-                    <input type="text" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
-                    <label htmlFor="order">Order results by:</label>
-                    <select name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
-                        {ratingOrders.map(order => (
-                            <option key={order.value} value={order.value}>{order.text}</option>  
-                        ))}
-                        <option value="bggRank">BGG ranking list position</option>
-                    </select>
-                    <button type="button" onClick={this.handleSubmit}>Get recommendations!</button>
+                    <div className="input-block">
+                        <label htmlFor="playerCount">Number of Players</label>
+                        <input type="number" name="playerCount" value={this.state.playerCount} onChange={this.handlePlayerCountChange}/>
+                    </div>
+                    <div className="input-block">
+                        <label htmlFor="availableTime">Desired Playing Time (minutes)</label>
+                        <input type="text" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
+                    </div>
+                    <div className="input-block">
+                        <label htmlFor="order">Order results by:</label>
+                        <select name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
+                            {ratingOrders.map(order => (
+                                <option key={order.value} value={order.value}>{order.text}</option>  
+                            ))}
+                            <option value="bggRank">BGG ranking list position</option>
+                        </select>
+                    </div>
+                    <div className="input-block">
+                        <button type="button" onClick={this.handleSubmit}>Get recommendations!</button>
+                    </div>
                 </div>
                 {this.state.given ?
                 <RecommendationList games={this.state.recommendations}

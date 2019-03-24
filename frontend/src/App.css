@@ -6,12 +6,17 @@ html, body {
 }
 
 .App {
-    padding-right: 110px;
     position: relative;
 }
 
 .form-section {
-    margin: 10px 0;
+    max-width: 500px;
+    margin: 10px auto;
+}
+
+.form-section .input-block {
+    display: inline-block;
+    margin: 2px auto;
 }
 
 .form-section input, .form-section select, .form-section label, .form-section button {
@@ -81,22 +86,32 @@ html, body {
 
 #collection-info {
     box-sizing: border-box;
-    position: absolute;
-    top: 80px;
-    right: 0px;
-    width: 100px;
     background-color: #981234;
-    border: 1px solid #eddc23;
+    border-top: 1px solid #eddc23;
+    border-bottom: 1px solid #eddc23;
     padding: 10px;
     margin-right: 5px;
 }
 
 #collection-info ul {
-    padding-left: 20px;
+    display: inline;
+    padding-inline-start: 0px;
+}
+
+#collection-info p {
+    display: inline;
 }
 
 #collection-info li {
+    display: inline;
     list-style-type: circle;
+    padding-inline-start: 10px;
+}
+
+#collection-info li input[type="checkbox"] {
+    position: relative;
+    top: 2px;
+    left: -2px;
 }
 
 .pagination-buttons {
@@ -173,8 +188,14 @@ table.gamelist img {
 }
 
 .filters {
+    position: absolute;
+    right: 10px;
+    top: 120px;
     max-width: 175px;
-    margin: auto;
+    background-color: #981234;
+    border: 1px solid #eddc23;
+    padding: 10px;
+    margin-right: 5px;
 }
 
 .filters ul {

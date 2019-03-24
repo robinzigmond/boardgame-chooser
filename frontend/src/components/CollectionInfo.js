@@ -9,7 +9,10 @@ class CollectionInfo extends Component {
                 <div>
                     <p>Collections loaded for:</p>
                     <ul>{this.props.data.map((username, idx)=>(
-                        <li key={idx}>{username}</li>
+                        <li key={idx}>
+                            <input type="checkbox" name={`removeColl${username}`}/>
+                            <span>{username}</span>
+                        </li>
                     ))}</ul>
                 </div>
                 : <p>No collection data loaded yet</p>}
