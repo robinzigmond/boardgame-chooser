@@ -55,7 +55,7 @@ class Preferences extends Component {
             ratingOrders = users.map(user => ({value: `rating${user}`, text: `${user}'s rating`}));
         }
         else {
-            ratingOrders = [{value: `${users[0]}'s rating`, text: "My Rating"}];
+            ratingOrders = [{value: `rating${users[0]}`, text: "My Rating"}];
         }
         return (
             <div>

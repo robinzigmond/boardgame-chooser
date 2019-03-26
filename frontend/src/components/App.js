@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import '../App.css';
 import FailureMessage from './FailureMessage.js';
 import CollectionInfo from './CollectionInfo.js';
-import ImportSelect from './ImportSelect.js';
 import Loader from './Loader.js';
 import Preferences from './Preferences.js';
 
@@ -11,17 +10,15 @@ const backendUrl = "http://127.0.0.1:5000";
 class App extends Component {
     constructor(props) {
         super(props);
-        this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+
         this.handleWantImportSubmit = this.handleWantImportSubmit.bind(this);
         this.handleUserNameChange = this.handleUserNameChange.bind(this);
         this.handleImportSubmit = this.handleImportSubmit.bind(this);
         this.closeBox = this.closeBox.bind(this);
+        this.removeUsers = this.removeUsers.bind(this);
+
         this.state = {username: "", data: {games: [], users: []}, collections: 0, importWanted: true,
                         showForm: false, failure: false, showDuplicate: false};
-    }
-
-    handleCheckboxChange(event) {
-        this.setState({importWanted: event.target.checked});
     }
 
     handleWantImportSubmit() {
@@ -37,7 +34,7 @@ class App extends Component {
             this.setState({showDuplicate: true});
             return;
         }
-        this.setState(state => ({loading: true, importWanted: false, failure: false}));
+        this.setState({loading: true, importWanted: false, failure: false});
         
         let collection;
         try {
@@ -130,6 +127,20 @@ class App extends Component {
         }
     }
 
+    removeUsers(toDelete) {
+        this.setState(state => {
+            let users = state.data.users;
+            let games = state.data.games;
+            toDelete.forEach(user => {
+                if (users.includes(user)) {
+                    let idx = users.findIndex(theUser => theUser === user);
+                    users.splice(idx, 1);
+                }
+            });
+            return {data: {users, games}};
+        });
+    }
+
     render() {
         return (
             <div className="App">
@@ -137,15 +148,10 @@ class App extends Component {
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
                 {this.state.failure ? <FailureMessage close={this.closeBox} /> : null}
                 {this.state.showDuplicate ? <FailureMessage close={this.closeBox} duplicate={true} /> : null}
-                <CollectionInfo data={this.state.data.users}/>
-                <div className="form-section">
-                    <label htmlFor="importCheck">Do you want to import a new collection?</label>
-                    <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange} checked={this.state.importWanted}/>
-                    <button type="button" onClick={this.handleWantImportSubmit} disabled={!this.state.importWanted}>Import it!</button>
-                </div>
-                {this.state.showForm ?
-                <ImportSelect handleChange={this.handleUserNameChange} handleSubmit={this.handleImportSubmit}/>
-                : null}
+                <CollectionInfo data={this.state.data.users}
+                handleWantImportSubmit={this.handleWantImportSubmit} importWanted={this.state.importWanted}
+                handleUserNameChange={this.handleUserNameChange} handleImportSubmit={this.handleImportSubmit}
+                showForm={this.state.showForm} removeUsers={this.removeUsers} key={this.state.data.users} />
                 {this.state.loading ? <Loader /> : null}
                 {!this.state.loading && this.state.data.games.length && !this.state.showForm ?
                 <Preferences data={this.state.data.games} users={this.state.data.users} /> : null}

@@ -19,7 +19,7 @@ html, body {
     margin: 2px auto;
 }
 
-.form-section input, .form-section select, .form-section label, .form-section button {
+.form-section input, .form-section select, .form-section label, .form-section button, #collection-info button {
     margin-left: 10px;
 }
 
