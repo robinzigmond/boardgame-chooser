@@ -100,7 +100,7 @@ class App extends Component {
                 return;
             }
             let updatedGames = oldGames.concat(gamesToAdd);
-            // finally add ratings of the just-added user for all games on the new list
+            // Add ratings of the just-added user for all games on the new list
             // (even those not in the new user's collection)
             for (let game of data) {
                 let foundIt = updatedGames.find(gm => gm.id === game.id); // should always exist
@@ -111,6 +111,15 @@ class App extends Component {
                     foundIt.ratings = {[this.state.username]: game.my_rating};
                 }
             }
+            // finally, add the username to the "users" property of each game object, for the games just added
+            updatedGames.forEach(game => {
+                if (!game.users) {
+                    game.users = [];
+                }
+                if (data.map(gm => gm.id).includes(game.id)) {
+                    game.users.push(this.state.username);
+                }
+            });
             this.setState({data: {users: prevData.users, games: updatedGames}, loading: false, showForm: false});
         }
         else {
@@ -137,11 +146,20 @@ class App extends Component {
                     users.splice(idx, 1);
                 }
             });
+            games.forEach(game => {
+                game.users = game.users.filter(user => !toDelete.includes(user));
+                for (let user of toDelete) {
+                    if (Object.keys(game.ratings).includes(user)) {
+                        delete game.ratings[user];
+                    }
+                }
+            });
             return {data: {users, games}};
         });
     }
 
     render() {
+        let dataToUse = this.state.data.games.filter(game => game.users.length);
         return (
             <div className="App">
                 <h1>Find a boardgame to play!</h1>
@@ -154,7 +172,7 @@ class App extends Component {
                 showForm={this.state.showForm} removeUsers={this.removeUsers} key={this.state.data.users} />
                 {this.state.loading ? <Loader /> : null}
                 {!this.state.loading && this.state.data.games.length && !this.state.showForm ?
-                <Preferences data={this.state.data.games} users={this.state.data.users} /> : null}
+                <Preferences key={dataToUse.length} data={dataToUse} users={this.state.data.users} /> : null}
             </div>
         );
     }
