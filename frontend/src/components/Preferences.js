@@ -9,7 +9,7 @@ class Preferences extends Component {
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {playerCount: 4, availableTime: 30,
-            gameOrder: `rating${Object.keys(this.props.data[0].ratings)[0]}`,
+            gameOrder: `rating${this.props.users[0]}`,
             recommendations: [], given: false};
     }
 

@@ -146,14 +146,19 @@ class App extends Component {
                     users.splice(idx, 1);
                 }
             });
+            let noMoreUsers = [];
             games.forEach(game => {
                 game.users = game.users.filter(user => !toDelete.includes(user));
                 for (let user of toDelete) {
-                    if (Object.keys(game.ratings).includes(user)) {
-                        delete game.ratings[user];
+                    if (Object.keys(game.users).includes(user)) {
+                        delete game.users[user];
                     }
                 }
+                if (!game.users.length) {
+                    noMoreUsers.push(game.id);
+                }
             });
+            games = games.filter(game => !noMoreUsers.includes(game.id));
             return {data: {users, games}};
         });
     }
