@@ -48,17 +48,18 @@ class CollectionInfo extends Component {
                     : null}
                 </div>
                 : <p>No collection data loaded yet</p>}
-                <div className="form-section">
-                    <label htmlFor="importCheck">Do you want to import a new collection?</label>
-                    <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange} checked={this.state.importWanted}/>
-                    {this.state.importWanted ? 
-                    <button type="button" onClick={this.props.handleWantImportSubmit}>Import it!</button>
-                    : null }
-                </div>
                 {this.props.showForm ?
                 <ImportSelect handleChange={this.props.handleUserNameChange}
                 handleSubmit={this.props.handleImportSubmit}/>
-                : null}
+                : 
+                <div className="form-section">
+                    <label htmlFor="importCheck">Do you want to import a new collection?</label>
+                    <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange}
+                    checked={this.state.importWanted}/>
+                    {this.state.importWanted ? 
+                    <button type="button" onClick={this.props.handleWantImportSubmit}>Click to import</button>
+                    : null }
+                </div>}
             </div>
         );
     }

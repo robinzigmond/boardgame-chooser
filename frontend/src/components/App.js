@@ -176,7 +176,7 @@ class App extends Component {
                 handleUserNameChange={this.handleUserNameChange} handleImportSubmit={this.handleImportSubmit}
                 showForm={this.state.showForm} removeUsers={this.removeUsers} key={this.state.data.users} />
                 {this.state.loading ? <Loader /> : null}
-                {!this.state.loading && this.state.data.games.length && !this.state.showForm ?
+                {!this.state.loading && this.state.data.games.length ?
                 <Preferences key={dataToUse.length} data={dataToUse} users={this.state.data.users} /> : null}
             </div>
         );

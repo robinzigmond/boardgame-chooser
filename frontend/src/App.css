@@ -40,13 +40,14 @@ html, body {
     right: 10px;
     bottom: 10px;
     border: 1px solid #eddc23;
-    padding: 5px;
+    padding: 4px 5px 6px 5px;
     width: 20px;
     height: 20px;
     font-size: 16px;
     background-color: #981234;
     color: #eddc23;
     cursor: pointer;
+    border-radius: 50%;
 }
 
 .loader-box {
@@ -64,23 +65,38 @@ html, body {
 }
 
 .loader-box .loader {
+    position: relative;
     box-sizing: border-box;
-    border-radius: 50%;
     width: 150px;
     height: 150px;
     margin: 50px auto;
-    border: 20px solid rgba(19, 56, 171, 0.5);
-    border-right-color: #1338ab;
-    animation: spin 2s linear infinite;
+    animation: jump 0.5s alternate infinite;
+    background-size: cover;
 }
 
-@keyframes spin {
+.meeple-red {
+    background-image: url(./images/meeple_red.png);
+}
+
+.meeple-yellow {
+    background-image: url(./images/meeple_yellow.png);
+}
+
+.meeple-green {
+    background-image: url(./images/meeple_green.png);
+}
+
+.meeple-blue {
+    background-image: url(./images/meeple_blue.png);
+}
+
+@keyframes jump {
     from {
-        transform: rotate(0deg);
+        bottom: -30px;
     }
 
     to {
-        transform: rotate(360deg);
+        bottom: 30px;
     }
 }
 
@@ -90,7 +106,6 @@ html, body {
     border-top: 1px solid #eddc23;
     border-bottom: 1px solid #eddc23;
     padding: 10px;
-    margin-right: 5px;
 }
 
 #collection-info ul {
@@ -188,14 +203,11 @@ table.gamelist img {
 }
 
 .filters {
-    position: absolute;
-    right: 10px;
-    top: 120px;
     max-width: 175px;
     background-color: #981234;
     border: 1px solid #eddc23;
     padding: 10px;
-    margin-right: 5px;
+    margin: 30px auto 10px auto;
 }
 
 .filters ul {
@@ -217,7 +229,7 @@ table.gamelist img {
     top: 50vh;
     left: 50vw;
     overflow-y: auto;
-    padding: 20px 20px 50px 20px;
+    padding: 20px;
     transform: translate(-50%, -50%);
     background-color: white;
     color: black;
@@ -239,6 +251,16 @@ table.gamelist img {
 }
 
 .filter-list .close-box {
-    bottom: -40px;
+    top: -20px;
     right: 0px;
+}
+
+@media only screen and (min-width: 650px) {
+    .filters {
+        position: absolute;
+        right: 10px;
+        top: 120px;
+        max-width: 175px;
+        margin-right: 5px;
+    }
 }

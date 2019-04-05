@@ -19,9 +19,9 @@ class ImportSelect extends Component {
         return (
             <div>
                 <div className="form-section">
-                    <label htmlFor="bgg-username">Enter your BGG username to import your collection:</label>
+                    <label htmlFor="bgg-username">Enter a BGG username to import their collection:</label>
                     <input type="text" name="bgg-username" onChange={this.props.handleChange} value={this.state.username}/>
-                    <button type="button" onClick={this.props.handleSubmit}>Import!</button>
+                    <button type="button" onClick={this.props.handleSubmit}>Go!</button>
                 </div>
                 {successMessage ? <p>{successMessage}</p> : null}
             </div>

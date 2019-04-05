@@ -28,7 +28,7 @@ class Preferences extends Component {
         if (val === "") {
             this.setState({availableTime: val})
         }
-        else if (+val > 0) {
+        else if (+val >= 0) {
             this.setState({availableTime: +val});
         }
     }

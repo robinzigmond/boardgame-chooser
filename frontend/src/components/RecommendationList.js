@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Pagination from './Pagination.js';
 import FilterList from './FilterList.js';
-
+// TODO: move the filter state up to the parent component, so that it remains the same when changing game order
+// (probably not though when changing playercount or playtime)
 class RecommendationList extends Component {
     constructor(props) {
         super(props);
@@ -103,7 +104,7 @@ class RecommendationList extends Component {
     }
 
     render() {
-        if (this.state.games.length) {
+        if (this.state.filteredGames.length) {
             let columnInfo;
             switch (this.props.sorting) {
                 case "bggRank":
@@ -170,6 +171,11 @@ class RecommendationList extends Component {
                     : null}
                 </div>
             )            
+        }
+        else if (this.state.games.length) {
+            return (
+                <p>Unfortunately, none of your games fit the selected filters!</p>
+            );
         }
         else {
             return (
