@@ -23,6 +23,16 @@ html, body {
     margin-left: 10px;
 }
 
+input[type="checkbox"] {
+    position: relative;
+    top: 2px;
+    left: -2px;
+}
+
+.time-checkbox {
+    display: inline-block;
+}
+
 .failure {
     position: fixed;
     width: 300px;
@@ -66,7 +76,6 @@ html, body {
 
 .loader-box .loader {
     position: relative;
-    box-sizing: border-box;
     width: 150px;
     height: 150px;
     margin: 50px auto;
@@ -123,12 +132,6 @@ html, body {
     padding-inline-start: 10px;
 }
 
-#collection-info li input[type="checkbox"] {
-    position: relative;
-    top: 2px;
-    left: -2px;
-}
-
 .pagination-buttons {
     margin-bottom: 10px;
     margin-top: 10px;
@@ -154,42 +157,21 @@ html, body {
     cursor: initial;
 }
 
-table.gamelist {
+.gamelist {
     border: 2px solid white;
     border-radius: 30px;
     max-width: 80vw;
     margin: auto;
+    padding: 10px;
+    text-align: left;
 }
 
-table.gamelist thead th {
-    border-bottom: 3px solid white;
-    padding: 5px 15px;
-}
-
-table.gamelist tbody td {
-    border-top: 1px solid white;
-    padding: 8px;
-    width: 175px;
-}
-
-table.gamelist thead th:last-child, table.gamelist tbody td:last-child {
-    width: 100px;
-}
-
-table.gamelist thead th, table.gamelist tbody td {
-    border-right: 1px solid white;
-}
-
-table.gamelist thead th:last-child, table.gamelist tbody td:last-child {
-    border-right: none;
-}
-
-table.gamelist a {
+.gamelist a {
     text-decoration: none;
     color: #eddc23;
 }
 
-table.gamelist img {
+.gamelist img {
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -200,6 +182,17 @@ table.gamelist img {
 
 .game-list {
     position: relative;
+}
+
+.game-info {
+    display: inline-block;
+    width: 100%;
+    vertical-align: top;
+    text-align: center;
+}
+
+.game-info h4 {
+    padding: 0 3px;
 }
 
 .filters {
@@ -256,6 +249,14 @@ table.gamelist img {
 }
 
 @media only screen and (min-width: 650px) {
+    .gamelist {
+        margin: auto 10px;
+    }
+
+    .game-info {
+        width: 20%;
+    }
+
     .filters {
         position: absolute;
         right: 10px;

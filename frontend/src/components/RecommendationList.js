@@ -6,7 +6,7 @@ import FilterList from './FilterList.js';
 class RecommendationList extends Component {
     constructor(props) {
         super(props);
-        this.gamesPerPage = 10;
+        this.gamesPerPage = 25;
         let lastPage = Math.ceil(this.props.games.length / this.gamesPerPage);
 
         this.filters = ["categories", "families", "mechanics"];
@@ -127,28 +127,17 @@ class RecommendationList extends Component {
                     <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
                     onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
                     : null}
-                    <table className="gamelist" cellSpacing="0">
-                        <thead>
-                            <tr>
-                                <th>Game</th>
-                                <th>{columnInfo.name}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.state.filteredGames.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
-                                <tr key={game.id}>
-                                    <td>
-                                        <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
-                                        rel="noopener noreferrer">
-                                            <img alt={`${game.name}`} src={game.thumbnail} />
-                                            <h4>{game.name}</h4>
-                                        </a>
-                                    </td>
-                                    <td>{columnInfo.extract(game)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <div className="gamelist">
+                        {this.state.filteredGames.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
+                            <div className="game-info" key={game.id}>
+                                <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
+                                rel="noopener noreferrer">
+                                    <img alt={`${game.name}`} src={game.thumbnail} />
+                                    <h4>{game.name} ({columnInfo.extract(game)})</h4>
+                                </a>
+                            </div>
+                        ))}
+                    </div>
                     {this.state.lastPage > 1 ? 
                     <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
                     onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>

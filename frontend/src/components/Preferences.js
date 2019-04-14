@@ -4,8 +4,15 @@ import RecommendationList from './RecommendationList.js';
 class Preferences extends Component {
     constructor(props) {
         super(props);
+
+        this.timePresets = [{mins: 30, label: "Half an Hour"},
+                            {mins: 60, label: "1 Hour"},
+                            {mins: 120, label: "2 Hours"},
+                            {mins: 180, label: "3 Hours"}];
+        
         this.handlePlayerCountChange = this.handlePlayerCountChange.bind(this);
         this.handleAvailableTimeChange = this.handleAvailableTimeChange.bind(this);
+        this.handleTimePresetChange = this.handleTimePresetChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {playerCount: 4, availableTime: 30,
@@ -30,6 +37,15 @@ class Preferences extends Component {
         }
         else if (+val >= 0) {
             this.setState({availableTime: +val});
+        }
+    }
+
+    handleTimePresetChange(event) {
+        if (event.target.checked) {
+            this.setState({availableTime: event.target.value});
+        }
+        else {
+            this.setState({availableTime: ""});
         }
     }
 
@@ -78,15 +94,25 @@ class Preferences extends Component {
                 <div className="form-section">
                     <div className="input-block">
                         <label htmlFor="playerCount">Number of Players</label>
-                        <input type="number" name="playerCount" value={this.state.playerCount} onChange={this.handlePlayerCountChange}/>
+                        <input type="number" name="playerCount" id="playerCount" value={this.state.playerCount} onChange={this.handlePlayerCountChange}/>
                     </div>
                     <div className="input-block">
                         <label htmlFor="availableTime">Desired Playing Time (minutes)</label>
-                        <input type="text" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
+                        <input type="text" id="availableTime" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
+                        <div>
+                            Or select:
+                            {this.timePresets.map(preset => (
+                                <div className="time-checkbox" key={preset.mins}>
+                                    <label htmlFor={`timePreset${preset.mins}`}>{preset.label}:</label>
+                                    <input type="checkbox" value={preset.mins} onChange={this.handleTimePresetChange}
+                                    id={`timePreset${preset.mins}`} checked={+this.state.availableTime === preset.mins}/>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     <div className="input-block">
                         <label htmlFor="order">Order results by:</label>
-                        <select name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
+                        <select id="order" name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
                             {ratingOrders.map(order => (
                                 <option key={order.value} value={order.value}>{order.text}</option>  
                             ))}
