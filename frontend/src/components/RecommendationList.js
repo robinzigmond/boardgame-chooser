@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import Pagination from './Pagination.js';
 import FilterList from './FilterList.js';
-// TODO: move the filter state up to the parent component, so that it remains the same when changing game order
-// (probably not though when changing playercount or playtime)
+
 class RecommendationList extends Component {
     constructor(props) {
         super(props);
-        this.gamesPerPage = 25;
+        this.gamesPerPage = 20;
         let lastPage = Math.ceil(this.props.games.length / this.gamesPerPage);
 
         this.filters = ["categories", "families", "mechanics"];

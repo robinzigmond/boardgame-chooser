@@ -248,13 +248,19 @@ input[type="checkbox"] {
     right: 0px;
 }
 
+@media only screen and (min-width: 450px) {
+    .game-info {
+        width: 50%;
+    }
+}
+
 @media only screen and (min-width: 650px) {
     .gamelist {
-        margin: auto 10px;
+        margin: auto 170px auto 10px;
     }
 
     .game-info {
-        width: 20%;
+        width: 25%;
     }
 
     .filters {
@@ -263,5 +269,11 @@ input[type="checkbox"] {
         top: 120px;
         max-width: 175px;
         margin-right: 5px;
+    }
+}
+
+@media only screen and (min-width: 900px) {
+    .game-info {
+        width: 20%;
     }
 }
