@@ -214,6 +214,10 @@ input[type="checkbox"] {
     margin: 5px auto;
 }
 
+.filters .filter-used {
+    color: #52ad14;
+}
+
 .filter-list {
     position: fixed;
     width: 500px;
@@ -246,6 +250,31 @@ input[type="checkbox"] {
 .filter-list .close-box {
     top: -20px;
     right: 0px;
+}
+
+#tooltip {
+    position: absolute;
+}
+
+#tooltip-arrow {
+    height: 0;
+    width: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 10px solid white;
+    position: relative;
+    left: calc(100% - 20px);
+}
+
+#tooltip-body {
+    padding: 2px 5px;
+    color: black;
+    background-color: white;
+}
+
+#tooltip-body > p {
+    margin: 0;
+    margin-top: -2px;
 }
 
 @media only screen and (min-width: 450px) {

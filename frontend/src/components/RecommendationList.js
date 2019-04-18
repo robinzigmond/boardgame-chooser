@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Pagination from './Pagination.js';
 import FilterList from './FilterList.js';
+import Tooltip from './Tooltip.js';
 
 class RecommendationList extends Component {
     constructor(props) {
@@ -18,9 +19,13 @@ class RecommendationList extends Component {
         this.prev = this.prev.bind(this);
         this.updateFilters = this.updateFilters.bind(this);
         this.doFilters = this.doFilters.bind(this);
+        this.handleMouseEnter = this.handleMouseEnter.bind(this);
+        this.handleMouseLeave = this.handleMouseLeave.bind(this);
+
+        this.container = React.createRef();
 
         this.state = {games: this.props.games, filteredGames: this.props.games, page: 1, lastPage, flags: {},
-                        showFilters: false};
+                        showFilters: false, tooltip: false};
     }
 
     componentDidMount() {
@@ -102,6 +107,21 @@ class RecommendationList extends Component {
         });
     }
 
+    handleMouseEnter(event, filter) {
+        let rect = this.container.current.getBoundingClientRect();
+        let filterInfo = this.state.flags[filter];
+        let allFlags = Object.keys(filterInfo);
+        let required = allFlags.filter(k => filterInfo[k] === 1);
+        let banned = allFlags.filter(k => filterInfo[k] === -1);
+        this.setState({tooltip: true, tooltipInfo: {required, banned},
+            mouseX: rect.width - event.pageX + rect.left + window.scrollX - 20,
+            mouseY: rect.height - event.pageY + rect.top + window.scrollY + 10});
+    }
+
+    handleMouseLeave() {
+        this.setState({tooltip: false, tooltipInfo: {}, mouseX: null, mouseY: null});
+    }
+
     render() {
         if (this.state.filteredGames.length) {
             let columnInfo;
@@ -117,7 +137,7 @@ class RecommendationList extends Component {
                                     extract: gm => this.convertRating(gm.ratings[username], 1, "not ranked")};
             }
             return (
-                <div className="game-list">
+                <div className="game-list" ref={this.container}>
                     <h3>
                         Recommended Games
                         {this.state.lastPage > 1 ? ` - page ${this.state.page} of ${this.state.lastPage}` : null}
@@ -144,9 +164,19 @@ class RecommendationList extends Component {
                     <div className="filters">
                         <p>Filter results by:</p>
                         <ul>
-                            {this.filters.map((filter, index) =>
-                                <li key={index} className="filter-option"
-                                onClick={() => this.setState({showFilters: filter})}>{filter}</li>
+                            {this.filters.map((filter, index) => {
+                                    let currentFilter = this.state.flags[filter];
+                                    let used = currentFilter && Object.keys(currentFilter).some(
+                                        flg => currentFilter[flg] !== 0
+                                    );
+                                    return (
+                                        <li key={index}
+                                        className={"filter-option" + (used ? " filter-used" : "")}
+                                        onClick={() => this.setState({showFilters: filter})}
+                                        onMouseEnter={used ? (e) => this.handleMouseEnter(e, filter) : null}
+                                        onMouseLeave={used ? this.handleMouseLeave : null}>{filter}</li>
+                                    )
+                                }
                             )}
                         </ul>
                     </div>
@@ -156,6 +186,9 @@ class RecommendationList extends Component {
                     close={() => {this.setState({showFilters: false})}}
                     key={this.state.filteredGames.map(game=>game.id).join(",")}
                     filterType={this.state.showFilters}/>
+                    : null}
+                    {this.state.tooltip ?
+                    <Tooltip info={this.state.tooltipInfo} xPos={this.state.mouseX} yPos={this.state.mouseY}/>
                     : null}
                 </div>
             )            

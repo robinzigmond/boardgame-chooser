@@ -15,6 +15,12 @@ class FilterList extends Component {
         this.getGames(this.props);
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.filterType !== this.props.filterType) {
+            this.getGames(this.props);
+        }
+    }
+
     getGames(props) {
         this.setState((prevState, thisProps) => {
             let itemNames = new Set();
