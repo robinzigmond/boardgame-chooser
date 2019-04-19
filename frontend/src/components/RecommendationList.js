@@ -123,44 +123,54 @@ class RecommendationList extends Component {
     }
 
     render() {
-        if (this.state.filteredGames.length) {
-            let columnInfo;
+        if (this.state.games.length) {
+            let getInfo;
             switch (this.props.sorting) {
+                case "alphabetical":
+                    break;
+                case "yearpublished":
+                    getInfo = (gm => this.convertRating(gm.yearpublished, 0, "unknown"));
+                    break;
                 case "bggRank":
-                    columnInfo = {"name": "BGG ranking list position",
-                                    extract: gm => this.convertRating(gm.stats.ranks[0].value, 0, "not ranked")};
+                    getInfo = (gm => this.convertRating(gm.stats.ranks[0].value, 0, "not ranked"));
                     break;
                 default:
                     // must be of the form "ratingXXX" where "XXXX" is the username
                     let username = this.props.sorting.slice(6);
-                    columnInfo = {"name": this.props.numUsers > 1 ? `${username}'s rating` : "My rating",
-                                    extract: gm => this.convertRating(gm.ratings[username], 1, "not ranked")};
+                    getInfo = (gm => this.convertRating(gm.ratings[username], 1, "not ranked"));
             }
             return (
                 <div className="game-list" ref={this.container}>
-                    <h3>
-                        Recommended Games
-                        {this.state.lastPage > 1 ? ` - page ${this.state.page} of ${this.state.lastPage}` : null}
-                    </h3>
-                    {this.state.lastPage > 1 ? 
-                    <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
-                    onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
-                    : null}
-                    <div className="gamelist">
-                        {this.state.filteredGames.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
-                            <div className="game-info" key={game.id}>
-                                <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
-                                rel="noopener noreferrer">
-                                    <img alt={`${game.name}`} src={game.thumbnail} />
-                                    <h4>{game.name} ({columnInfo.extract(game)})</h4>
-                                </a>
+                    {this.state.filteredGames.length ? (
+                        <div>
+                            <h3>
+                                Suitable Games
+                                {this.state.lastPage > 1 ? ` - page ${this.state.page} of ${this.state.lastPage}` : null}
+                            </h3>
+                            {this.state.lastPage > 1 ? 
+                            <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
+                            onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
+                            : null}
+                            <div className="gamelist">
+                                {this.state.filteredGames.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
+                                    <div className="game-info" key={game.id}>
+                                        <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
+                                        rel="noopener noreferrer">
+                                            <img alt={`${game.name}`} src={game.thumbnail} />
+                                            <h4>
+                                                {game.name}
+                                                {getInfo ? ` (${getInfo(game)})` : null}
+                                            </h4>
+                                        </a>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                    {this.state.lastPage > 1 ? 
-                    <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
-                    onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
-                    : null}
+                            {this.state.lastPage > 1 ? 
+                            <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
+                            onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
+                            : null}
+                        </div>
+                    ) : <p>Unfortunately, none of your games fit the filters you've selected!</p>}
                     <div className="filters">
                         <p>Filter results by:</p>
                         <ul>
@@ -172,9 +182,12 @@ class RecommendationList extends Component {
                                     return (
                                         <li key={index}
                                         className={"filter-option" + (used ? " filter-used" : "")}
-                                        onClick={() => this.setState({showFilters: filter})}
-                                        onMouseEnter={used ? (e) => this.handleMouseEnter(e, filter) : null}
-                                        onMouseLeave={used ? this.handleMouseLeave : null}>{filter}</li>
+                                        onClick={() => this.setState({showFilters: filter})}>
+                                            <span onMouseEnter={used ? (e) => this.handleMouseEnter(e, filter) : null}
+                                            onMouseLeave={used ? this.handleMouseLeave : null}>
+                                                {filter}
+                                            </span>
+                                        </li>
                                     )
                                 }
                             )}
@@ -192,11 +205,6 @@ class RecommendationList extends Component {
                     : null}
                 </div>
             )            
-        }
-        else if (this.state.games.length) {
-            return (
-                <p>Unfortunately, none of your games fit the selected filters!</p>
-            );
         }
         else {
             return (

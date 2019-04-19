@@ -16,7 +16,7 @@ class Preferences extends Component {
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {playerCount: 4, availableTime: 30,
-            gameOrder: `rating${this.props.users[0]}`,
+            gameOrder: "alphabetical",
             recommendations: [], given: false};
     }
 
@@ -63,6 +63,12 @@ class Preferences extends Component {
                     && game.maxplaytime >= state.availableTime);
                 let sortFunction;
                 switch(state.gameOrder) {
+                    case "alphabetical":
+                        sortFunction = (a,b) => ((b.name - a.name));
+                        break;
+                    case "yearpublished":
+                        sortFunction = (a,b) => ((a.yearpublished || Infinity) - (b.yearpublished || Infinity));
+                        break;
                     case "bggRank":
                         sortFunction = (a,b) => ((a.stats.ranks[0].value || Infinity) - (b.stats.ranks[0].value || Infinity));
                         break;
@@ -89,6 +95,8 @@ class Preferences extends Component {
         else {
             ratingOrders = [{value: `rating${users[0]}`, text: "My Rating"}];
         }
+        ratingOrders.unshift({value: "alphabetical", text: "Name (alphabetical"},
+            {value: "yearpublished", text: "Year published"});
         return (
             <div>
                 <div className="form-section">
@@ -120,7 +128,9 @@ class Preferences extends Component {
                         </select>
                     </div>
                     <div className="input-block">
-                        <button type="button" onClick={this.handleSubmit}>Get recommendations!</button>
+                        <button type="button" onClick={this.handleSubmit}>
+                            {this.state.given ? "Update" : "Get"} recommendations!
+                        </button>
                     </div>
                 </div>
                 {this.state.given ?

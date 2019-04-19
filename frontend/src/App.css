@@ -35,6 +35,7 @@ input[type="checkbox"] {
 
 .failure {
     position: fixed;
+    z-index: 2;
     width: 300px;
     height: 100px;
     top: 50vh;
@@ -83,6 +84,13 @@ input[type="checkbox"] {
     background-size: cover;
 }
 
+.loader-box p {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 .meeple-red {
     background-image: url(./images/meeple_red.png);
 }
@@ -101,7 +109,7 @@ input[type="checkbox"] {
 
 @keyframes jump {
     from {
-        bottom: -30px;
+        bottom: calc(150px - 50vh);
     }
 
     to {
@@ -208,10 +216,13 @@ input[type="checkbox"] {
 }
 
 .filters .filter-option {
-    cursor: pointer;
     font-weight: bold;
     list-style-type: none;
     margin: 5px auto;
+}
+
+.filters .filter-option span {
+    cursor: pointer;
 }
 
 .filters .filter-used {
@@ -254,6 +265,7 @@ input[type="checkbox"] {
 
 #tooltip {
     position: absolute;
+    z-index: 3;
 }
 
 #tooltip-arrow {
@@ -304,5 +316,21 @@ input[type="checkbox"] {
 @media only screen and (min-width: 900px) {
     .game-info {
         width: 20%;
+    }
+}
+
+@media only screen and (min-height: 550px) {
+    .loader-box .loader {
+        animation-duration: 0.8s;
+    }
+
+    @keyframes jump {
+        from {
+            bottom: calc(-250px);
+        }
+    
+        to {
+            bottom: 30px;
+        }
     }
 }

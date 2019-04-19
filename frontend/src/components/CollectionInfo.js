@@ -12,7 +12,12 @@ class CollectionInfo extends Component {
     }
 
     handleCheckboxChange(event) {
-        this.setState({importWanted: event.target.checked});
+        if (event.target.checked) {
+            this.setState({importWanted: true}, this.props.handleWantImportSubmit);
+        }
+        else {
+            this.setState({importWanted: false});
+        }
     }
 
     toggleRemoval(username) {
@@ -56,9 +61,6 @@ class CollectionInfo extends Component {
                     <label htmlFor="importCheck">Do you want to import a new collection?</label>
                     <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange}
                     checked={this.state.importWanted}/>
-                    {this.state.importWanted ? 
-                    <button type="button" onClick={this.props.handleWantImportSubmit}>Click to import</button>
-                    : null }
                 </div>}
             </div>
         );

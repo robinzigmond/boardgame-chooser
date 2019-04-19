@@ -18,7 +18,7 @@ class App extends Component {
         this.removeUsers = this.removeUsers.bind(this);
 
         this.state = {username: "", data: {games: [], users: []}, collections: 0, importWanted: true,
-                        showForm: false, failure: false, showDuplicate: false};
+                        showForm: true, failure: false, showDuplicate: false};
     }
 
     handleWantImportSubmit() {
@@ -138,8 +138,7 @@ class App extends Component {
 
     removeUsers(toDelete) {
         this.setState(state => {
-            let users = state.data.users;
-            let games = state.data.games;
+            let {users, games} = state.data;
             toDelete.forEach(user => {
                 if (users.includes(user)) {
                     let idx = users.findIndex(theUser => theUser === user);
