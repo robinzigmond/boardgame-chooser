@@ -9,44 +9,16 @@ class RecommendationList extends Component {
         this.gamesPerPage = 20;
         let lastPage = Math.ceil(this.props.games.length / this.gamesPerPage);
 
-        this.filters = ["categories", "families", "mechanics"];
-
-        this.initialiseFlags = this.initialiseFlags.bind(this);
-
         this.first = this.first.bind(this);
         this.next = this.next.bind(this);
         this.last = this.last.bind(this);
         this.prev = this.prev.bind(this);
-        this.updateFilters = this.updateFilters.bind(this);
-        this.doFilters = this.doFilters.bind(this);
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
         this.handleMouseLeave = this.handleMouseLeave.bind(this);
 
         this.container = React.createRef();
 
-        this.state = {games: this.props.games, filteredGames: this.props.games, page: 1, lastPage, flags: {},
-                        showFilters: false, tooltip: false};
-    }
-
-    componentDidMount() {
-        this.initialiseFlags();
-    }
-
-    componentDidUpdate() {
-        this.setState(state => {
-            let lastPage = Math.ceil(state.filteredGames.length / this.gamesPerPage);
-            if (state.lastPage !== lastPage) {
-                return {lastPage};
-            }
-        });
-    }
-
-    initialiseFlags() {
-        let flags = {};
-        this.filters.forEach(filter => {
-            flags[filter] = {};
-        });
-        this.setState({flags});
+        this.state = {page: 1, lastPage, tooltip: false};
     }
 
     first() {
@@ -75,41 +47,9 @@ class RecommendationList extends Component {
         return (+rating).toFixed(precision)
     }
 
-    updateFilters(itemName, filterName, flag=0) {
-        this.setState(state => {
-            let flags = state.flags;
-            flags[filterName][itemName] = flag;
-            return {flags, page: 1};
-        }, this.doFilters);
-    }
-
-    doFilters() {
-        // flag values: +1 - required, -1 - banned, 0 - neither
-        this.setState(state => {
-            let {flags, games} = state;
-
-            this.filters.forEach(filter => {
-                for (let item in flags[filter]) {
-                    switch(flags[filter][item]) {
-                        case 1:
-                            games = games.filter(game => game[filter].includes(item));
-                            break;
-                        case -1:
-                            games = games.filter(game => !game[filter].includes(item));
-                            break;
-                        case 0:
-                        default:
-                            break;                
-                    }
-                }
-            });
-            return {filteredGames: games};
-        });
-    }
-
     handleMouseEnter(event, filter) {
         let rect = this.container.current.getBoundingClientRect();
-        let filterInfo = this.state.flags[filter];
+        let filterInfo = this.props.flags[filter];
         let allFlags = Object.keys(filterInfo);
         let required = allFlags.filter(k => filterInfo[k] === 1);
         let banned = allFlags.filter(k => filterInfo[k] === -1);
@@ -123,7 +63,7 @@ class RecommendationList extends Component {
     }
 
     render() {
-        if (this.state.games.length) {
+        if (this.props.games.length) {
             let getInfo;
             switch (this.props.sorting) {
                 case "alphabetical":
@@ -141,7 +81,7 @@ class RecommendationList extends Component {
             }
             return (
                 <div className="game-list" ref={this.container}>
-                    {this.state.filteredGames.length ? (
+                    {this.props.games.length ? (
                         <div>
                             <h3>
                                 Suitable Games
@@ -152,7 +92,7 @@ class RecommendationList extends Component {
                             onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
                             : null}
                             <div className="gamelist">
-                                {this.state.filteredGames.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
+                                {this.props.games.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
                                     <div className="game-info" key={game.id}>
                                         <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
                                         rel="noopener noreferrer">
@@ -174,15 +114,15 @@ class RecommendationList extends Component {
                     <div className="filters">
                         <p>Filter results by:</p>
                         <ul>
-                            {this.filters.map((filter, index) => {
-                                    let currentFilter = this.state.flags[filter];
+                            {this.props.filters.map((filter, index) => {
+                                    let currentFilter = this.props.flags[filter];
                                     let used = currentFilter && Object.keys(currentFilter).some(
                                         flg => currentFilter[flg] !== 0
                                     );
                                     return (
                                         <li key={index}
                                         className={"filter-option" + (used ? " filter-used" : "")}
-                                        onClick={() => this.setState({showFilters: filter})}>
+                                        onClick={() => this.props.filterDisplay(filter)}>
                                             <span onMouseEnter={used ? (e) => this.handleMouseEnter(e, filter) : null}
                                             onMouseLeave={used ? this.handleMouseLeave : null}>
                                                 {filter}
@@ -193,12 +133,12 @@ class RecommendationList extends Component {
                             )}
                         </ul>
                     </div>
-                    {this.state.showFilters ?
-                    <FilterList games={this.state.filteredGames} updateFilters={this.updateFilters}
-                    currentFlags={this.state.flags[this.state.showFilters]}
-                    close={() => {this.setState({showFilters: false})}}
-                    key={this.state.filteredGames.map(game=>game.id).join(",")}
-                    filterType={this.state.showFilters}/>
+                    {this.props.showFilters ?
+                    <FilterList games={this.props.games} updateFilters={this.props.updateFilters}
+                    currentFlags={this.props.flags[this.props.showFilters]}
+                    close={() => this.props.filterDisplay()}
+                    key={this.props.games.map(game=>game.id).join(",")}
+                    filterType={this.props.showFilters}/>
                     : null}
                     {this.state.tooltip ?
                     <Tooltip info={this.state.tooltipInfo} xPos={this.state.mouseX} yPos={this.state.mouseY}/>

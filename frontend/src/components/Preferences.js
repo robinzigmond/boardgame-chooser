@@ -9,15 +9,76 @@ class Preferences extends Component {
                             {mins: 60, label: "1 Hour"},
                             {mins: 120, label: "2 Hours"},
                             {mins: 180, label: "3 Hours"}];
+
+        this.filters = ["categories", "families", "mechanics"];
         
+        this.initialiseFlags = this.initialiseFlags.bind(this);
+        this.updateFilters = this.updateFilters.bind(this);
+        this.doFilters = this.doFilters.bind(this);
+        this.filterDisplay = this.filterDisplay.bind(this);
         this.handlePlayerCountChange = this.handlePlayerCountChange.bind(this);
         this.handleAvailableTimeChange = this.handleAvailableTimeChange.bind(this);
         this.handleTimePresetChange = this.handleTimePresetChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {playerCount: 4, availableTime: 30,
-            gameOrder: "alphabetical",
-            recommendations: [], given: false};
+            gameOrder: "alphabetical", allGames: [],
+            given: false, filteredGames: [], flags: {}, showFilters: false};
+    }
+
+    componentDidMount() {
+        this.initialiseFlags();
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.gameOrder !== this.state.gameOrder) {
+            this.handleSubmit(false);
+        }
+    }
+
+    initialiseFlags(cb=null) {
+        let flags = {};
+        this.filters.forEach(filter => {
+            flags[filter] = {};
+        });
+        this.setState({flags}, cb);
+    }
+
+    updateFilters(itemName, filterName, flag=0) {
+        this.setState(state => {
+            let flags = state.flags;
+            flags[filterName][itemName] = flag;
+            return {flags, page: 1};
+        }, this.doFilters);
+    }
+
+    doFilters() {
+        // flag values: +1 - required, -1 - banned, 0 - neither
+        this.setState(state => {
+            let {flags} = state;
+            let filteredGames = [...state.allGames];
+
+            this.filters.forEach(filter => {
+                for (let item in flags[filter]) {
+                    switch(flags[filter][item]) {
+                        case 1:
+                            filteredGames = filteredGames.filter(game => game[filter].includes(item));
+                            break;
+                        case -1:
+                            filteredGames = filteredGames.filter(game => !game[filter].includes(item));
+                            break;
+                        case 0:
+                        default:
+                            break;                
+                    }
+                }
+            });
+            return {filteredGames};
+        });
+    }
+
+    filterDisplay(filter=false) {
+        this.setState({showFilters: filter});
     }
 
     handlePlayerCountChange(event) {
@@ -50,10 +111,14 @@ class Preferences extends Component {
     }
 
     handleOrderChange(event) {
-        this.setState({gameOrder: event.target.value}, this.handleSubmit);
+        this.setState({gameOrder: event.target.value});
     }
 
-    handleSubmit() {
+    handleSubmit(clearFilters=true) {
+        if (clearFilters) {
+            this.initialiseFlags(() => this.handleSubmit(false));
+            return;   
+        }
         if (this.state.playerCount && this.state.availableTime) {
             this.setState((state, props) => {
                 let foundGames = props.data.filter(game =>
@@ -80,9 +145,9 @@ class Preferences extends Component {
                 foundGames.sort(sortFunction);
                 return {
                     given: true,
-                    recommendations: foundGames
+                    allGames: foundGames
                 };
-            });
+            }, this.doFilters);
         }
     }
 
@@ -128,15 +193,17 @@ class Preferences extends Component {
                         </select>
                     </div>
                     <div className="input-block">
-                        <button type="button" onClick={this.handleSubmit}>
+                        <button type="button" onClick={() => this.handleSubmit()}>
                             {this.state.given ? "Update" : "Get"} recommendations!
                         </button>
                     </div>
                 </div>
                 {this.state.given ?
-                <RecommendationList games={this.state.recommendations}
-                key={this.state.recommendations.map(game => game.id).join(",")} sorting={this.state.gameOrder}
-                numUsers={this.props.users.length}/>
+                <RecommendationList games={this.state.filteredGames}
+                key={this.state.filteredGames.map(game => game.id).join(",")} sorting={this.state.gameOrder}
+                numUsers={this.props.users.length} filters={this.filters} flags={this.state.flags}
+                updateFilters={this.updateFilters} showFilters={this.state.showFilters}
+                filterDisplay={this.filterDisplay}/>
                 : null}
             </div>
         );
