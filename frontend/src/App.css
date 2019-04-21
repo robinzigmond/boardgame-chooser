@@ -23,10 +23,35 @@ html, body {
     margin-left: 10px;
 }
 
-input[type="checkbox"] {
+.form-section input {
+    width: 35px;
+    border-radius: 5px;
+    padding: 3px 0 3px 3px;
+    border-width: 1px;
+}
+
+.form-section select {
+    border-radius: 5px;
+    padding: 3px 0 3px 3px;
+}
+
+.form-section button {
+    font-size: 1em;
+    border: 1px solid #540123;
+    background-color: #eddc23;
+    color: #540123;
+    height: 1.8em;
+    border-radius: 5px;
+    padding-top: 0.1em;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+input[type="checkbox"], #collection-info input {
     position: relative;
     top: 2px;
     left: -2px;
+    width: auto;
 }
 
 .time-checkbox {
@@ -326,7 +351,7 @@ input[type="checkbox"] {
 
     @keyframes jump {
         from {
-            bottom: calc(-250px);
+            bottom: -250px;
         }
     
         to {

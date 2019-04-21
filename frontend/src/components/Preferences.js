@@ -160,7 +160,7 @@ class Preferences extends Component {
         else {
             ratingOrders = [{value: `rating${users[0]}`, text: "My Rating"}];
         }
-        ratingOrders.unshift({value: "alphabetical", text: "Name (alphabetical"},
+        ratingOrders.unshift({value: "alphabetical", text: "Name (alphabetical)"},
             {value: "yearpublished", text: "Year published"});
         return (
             <div>
