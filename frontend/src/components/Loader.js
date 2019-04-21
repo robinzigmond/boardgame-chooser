@@ -8,7 +8,7 @@ class Loader extends Component {
         return (
             <div className="loader-box">
                 <div className={classStr}></div>
-                <p>Loading game data...</p>
+                <p>Loading collection...</p>
             </div>
         );
     }

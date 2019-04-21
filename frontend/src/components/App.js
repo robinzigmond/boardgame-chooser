@@ -11,30 +11,26 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        this.handleWantImportSubmit = this.handleWantImportSubmit.bind(this);
         this.handleUserNameChange = this.handleUserNameChange.bind(this);
         this.handleImportSubmit = this.handleImportSubmit.bind(this);
         this.closeBox = this.closeBox.bind(this);
         this.removeUsers = this.removeUsers.bind(this);
 
-        this.state = {username: "", data: {games: [], users: []}, collections: 0, importWanted: true,
-                        showForm: true, failure: false, showDuplicate: false};
-    }
-
-    handleWantImportSubmit() {
-        this.setState({showForm: true});
+        this.state = {username: "", data: {games: [], users: []}, collections: 0,
+                        failure: false, showDuplicate: false};
     }
 
     handleUserNameChange(event) {
         this.setState({username: event.target.value});
     }
 
-    async handleImportSubmit() {
+    async handleImportSubmit(e) {
+        e.preventDefault();
         if (this.state.data.users.includes(this.state.username)) {
             this.setState({showDuplicate: true});
             return;
         }
-        this.setState({loading: true, importWanted: false, failure: false});
+        this.setState({loading: true, failure: false});
         
         let collection;
         try {
@@ -120,7 +116,7 @@ class App extends Component {
                     game.users.push(this.state.username);
                 }
             });
-            this.setState({data: {users: prevData.users, games: updatedGames}, loading: false, showForm: false});
+            this.setState({data: {users: prevData.users, games: updatedGames}, loading: false});
         }
         else {
             this.setState({failure: true, loading: false});
@@ -171,9 +167,8 @@ class App extends Component {
                 {this.state.failure ? <FailureMessage close={this.closeBox} /> : null}
                 {this.state.showDuplicate ? <FailureMessage close={this.closeBox} duplicate={true} /> : null}
                 <CollectionInfo data={this.state.data.users}
-                handleWantImportSubmit={this.handleWantImportSubmit} importWanted={this.state.importWanted}
                 handleUserNameChange={this.handleUserNameChange} handleImportSubmit={this.handleImportSubmit}
-                showForm={this.state.showForm} removeUsers={this.removeUsers} key={this.state.data.users} />
+                removeUsers={this.removeUsers} key={this.state.data.users} />
                 {this.state.loading ? <Loader /> : null}
                 {!this.state.loading && this.state.data.games.length ?
                 <Preferences key={dataToUse.length} data={dataToUse} users={this.state.data.users} /> : null}

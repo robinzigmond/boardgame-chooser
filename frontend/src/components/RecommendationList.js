@@ -77,7 +77,7 @@ class RecommendationList extends Component {
                 default:
                     // must be of the form "ratingXXX" where "XXXX" is the username
                     let username = this.props.sorting.slice(6);
-                    getInfo = (gm => this.convertRating(gm.ratings[username], 1, "not ranked"));
+                    getInfo = (gm => this.convertRating(gm.ratings[username], 1, "not rated"));
             }
             return (
                 <div className="game-list" ref={this.container}>

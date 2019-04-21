@@ -10,7 +10,7 @@ html, body {
 }
 
 .form-section {
-    max-width: 500px;
+    max-width: 700px;
     margin: 10px auto;
 }
 
@@ -30,12 +30,20 @@ html, body {
     border-width: 1px;
 }
 
+#collection-info input[type="text"] {
+    width: 80px;
+}
+
+#collection-info input[type="checkbox"] {
+    width: auto;
+}
+
 .form-section select {
     border-radius: 5px;
     padding: 3px 0 3px 3px;
 }
 
-.form-section button {
+.form-section button, #collection-info button {
     font-size: 1em;
     border: 1px solid #540123;
     background-color: #eddc23;
@@ -47,11 +55,41 @@ html, body {
     cursor: pointer;
 }
 
-input[type="checkbox"], #collection-info input {
+.filter-list input[type="checkbox"] {
     position: relative;
     top: 2px;
-    left: -2px;
+    margin: auto 8px auto 5px;
     width: auto;
+}
+
+#collection-info input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.form-section input[type="checkbox"] {
+    visibility: hidden;
+}
+
+.form-section input[type="checkbox"] {
+    width: 25px;
+}
+
+.form-section input[type="checkbox"]::before {
+    visibility: visible;
+    content: "";
+    display: block;
+    width: 1.1em;
+    height: 1.1em;
+    color: #eddc23;
+    border: 1px solid #eddc23;
+    background-color: #540123;
+    border-radius: 35%;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.form-section input[type="checkbox"]:checked::before {
+    content: "\2713";
 }
 
 .time-checkbox {
@@ -148,6 +186,7 @@ input[type="checkbox"], #collection-info input {
     border-top: 1px solid #eddc23;
     border-bottom: 1px solid #eddc23;
     padding: 10px;
+    margin-top: -10px;
 }
 
 #collection-info ul {
@@ -162,7 +201,6 @@ input[type="checkbox"], #collection-info input {
 #collection-info li {
     display: inline;
     list-style-type: circle;
-    padding-inline-start: 10px;
 }
 
 .pagination-buttons {

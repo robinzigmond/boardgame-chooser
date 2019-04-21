@@ -5,19 +5,14 @@ class CollectionInfo extends Component {
     constructor(props) {
         super(props);
 
-        this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+        this.handleWantImport = this.handleWantImport.bind(this);
         this.toggleRemoval = this.toggleRemoval.bind(this);
 
-        this.state = {importWanted: this.props.importWanted, toDelete: []};
+        this.state = {toDelete: [], showForm: false};
     }
 
-    handleCheckboxChange(event) {
-        if (event.target.checked) {
-            this.setState({importWanted: true}, this.props.handleWantImportSubmit);
-        }
-        else {
-            this.setState({importWanted: false});
-        }
+    handleWantImport() {
+        this.setState({showForm: true});
     }
 
     toggleRemoval(username) {
@@ -39,7 +34,7 @@ class CollectionInfo extends Component {
             <div id="collection-info">
                 {this.props.data.length
                 ? 
-                <div>
+                <div className="form-section">
                     <p>Collections loaded for:</p>
                     <ul>{this.props.data.map((username, idx)=>(
                         <li key={idx}>
@@ -53,14 +48,12 @@ class CollectionInfo extends Component {
                     : null}
                 </div>
                 : <p>No collection data loaded yet</p>}
-                {this.props.showForm ?
+                {this.state.showForm ?
                 <ImportSelect handleChange={this.props.handleUserNameChange}
                 handleSubmit={this.props.handleImportSubmit}/>
                 : 
                 <div className="form-section">
-                    <label htmlFor="importCheck">Do you want to import a new collection?</label>
-                    <input name="importCheck" type="checkbox" onChange={this.handleCheckboxChange}
-                    checked={this.state.importWanted}/>
+                    <button onClick={this.handleWantImport}>Click to add a new collection</button>
                 </div>}
             </div>
         );
