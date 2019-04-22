@@ -166,7 +166,7 @@ class App extends Component {
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
                 {this.state.failure ? <FailureMessage close={this.closeBox} /> : null}
                 {this.state.showDuplicate ? <FailureMessage close={this.closeBox} duplicate={true} /> : null}
-                <CollectionInfo data={this.state.data.users}
+                <CollectionInfo data={this.state.data.users} showForm={!this.state.data.users.length}
                 handleUserNameChange={this.handleUserNameChange} handleImportSubmit={this.handleImportSubmit}
                 removeUsers={this.removeUsers} key={this.state.data.users} />
                 {this.state.loading ? <Loader /> : null}

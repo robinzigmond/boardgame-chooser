@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import CustomSelect from './CustomSelect.js';
 import RecommendationList from './RecommendationList.js';
 
 class Preferences extends Component {
@@ -110,8 +111,8 @@ class Preferences extends Component {
         }
     }
 
-    handleOrderChange(event) {
-        this.setState({gameOrder: event.target.value});
+    handleOrderChange(val) {
+        this.setState({gameOrder: val});
     }
 
     handleSubmit(clearFilters=true) {
@@ -162,6 +163,7 @@ class Preferences extends Component {
         }
         ratingOrders.unshift({value: "alphabetical", text: "Name (alphabetical)"},
             {value: "yearpublished", text: "Year published"});
+        ratingOrders.push({value: "bggRank", text: "BGG ranking list position"});
         return (
             <div>
                 <div className="form-section">
@@ -184,13 +186,9 @@ class Preferences extends Component {
                         </div>
                     </div>
                     <div className="input-block">
-                        <label htmlFor="order">Order results by:</label>
-                        <select id="order" name="order" value={this.state.gameOrder} onChange={this.handleOrderChange}>
-                            {ratingOrders.map(order => (
-                                <option key={order.value} value={order.value}>{order.text}</option>  
-                            ))}
-                            <option value="bggRank">BGG ranking list position</option>
-                        </select>
+                        <p className="select-label">Order results by:</p>
+                        <CustomSelect options={ratingOrders} value={ratingOrders[0].value}
+                        updateParent={this.handleOrderChange}/>
                     </div>
                     <div className="input-block">
                         <button type="button" onClick={() => this.handleSubmit()}>

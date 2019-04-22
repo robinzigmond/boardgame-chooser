@@ -10,7 +10,7 @@ html, body {
 }
 
 .form-section {
-    max-width: 700px;
+    max-width: 600px;
     margin: 10px auto;
 }
 
@@ -19,7 +19,8 @@ html, body {
     margin: 2px auto;
 }
 
-.form-section input, .form-section select, .form-section label, .form-section button, #collection-info button {
+.form-section input, .form-section .custom-select, .form-section label,
+.form-section button, #collection-info button {
     margin-left: 10px;
 }
 
@@ -38,9 +39,8 @@ html, body {
     width: auto;
 }
 
-.form-section select {
+.form-section .custom-select {
     border-radius: 5px;
-    padding: 3px 0 3px 3px;
 }
 
 .form-section button, #collection-info button {
@@ -84,8 +84,9 @@ html, body {
     border: 1px solid #eddc23;
     background-color: #540123;
     border-radius: 35%;
-    line-height: 1.25;
+    line-height: 1.28;
     text-align: center;
+    cursor: pointer;
 }
 
 .form-section input[type="checkbox"]:checked::before {
@@ -94,6 +95,70 @@ html, body {
 
 .time-checkbox {
     display: inline-block;
+}
+
+.select-main, .select-text, .select-label, .custom-select {
+    display: inline-block;
+}
+
+.custom-select {
+    cursor: pointer;
+    border: 1px solid #540123;
+}
+
+.select-main {
+    width: 205px;
+    text-align: left;
+    background-color: #540123;
+    color: #eddc23;
+}
+
+.select-text {
+    width: 180px;
+    margin-block-start: 3px;
+    margin-block-end: 3px;
+    margin-inline-start: 3px;
+}
+
+.select-arrow {
+    display: inline-block;
+    line-height: 1.1;
+    transition: transform 0.5s ease-in-out;
+}
+
+.custom-select.open .select-arrow {
+    transform: rotate(180deg);
+}
+
+.select-body {
+    position: absolute;
+    z-index: 5;
+    background-color: white;
+    color: #540123;
+    width: 205px;
+    overflow: hidden;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s ease-in-out;
+}
+
+.custom-select.open .select-body {
+    transform: scaleY(1);
+    transition-duration: 0.5s;
+}
+
+.select-option {
+    text-align: left;
+    width: 100%;
+    padding-left: 3px;
+}
+
+.select-option:hover {
+    background-color: #eddc23;
+}
+
+.select-option.selected {
+    display: none;
 }
 
 .failure {
@@ -305,6 +370,7 @@ html, body {
     background-color: white;
     color: black;
     border: 3px solid black;
+    z-index: 10;
 }
 
 .filter-list .single-filter {

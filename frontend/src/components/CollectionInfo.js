@@ -8,7 +8,7 @@ class CollectionInfo extends Component {
         this.handleWantImport = this.handleWantImport.bind(this);
         this.toggleRemoval = this.toggleRemoval.bind(this);
 
-        this.state = {toDelete: [], showForm: false};
+        this.state = {toDelete: [], showForm: props.showForm};
     }
 
     handleWantImport() {
