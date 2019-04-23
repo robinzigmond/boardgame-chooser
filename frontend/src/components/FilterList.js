@@ -61,14 +61,16 @@ class FilterList extends Component {
                         (name, index) => (
                             <div key={index} className="single-filter">
                                 <span className="filter-name">{name}:  </span>
-                                <label htmlFor={`${name}Required`}>Require</label>
-                                <input type="checkbox" name={`${name}Required`}
-                                onChange={(event) => this.updateFilters(event, name, 1)}
-                                checked={this.props.currentFlags[name] === 1}/>
-                                <label htmlFor={`${name}Banned`}>Remove</label>
-                                <input type="checkbox" name={`${name}Banned`}
-                                onChange={(event) => this.updateFilters(event, name, -1)}
-                                checked={this.props.currentFlags[name] === -1} />
+                                <div className="filter-checks">
+                                    <label htmlFor={`${name}Required`}>Require</label>
+                                    <input type="checkbox" name={`${name}Required`}
+                                    onChange={(event) => this.updateFilters(event, name, 1)}
+                                    checked={this.props.currentFlags[name] === 1} />
+                                    <label htmlFor={`${name}Banned`}>Remove</label>
+                                    <input type="checkbox" name={`${name}Banned`}
+                                    onChange={(event) => this.updateFilters(event, name, -1)}
+                                    checked={this.props.currentFlags[name] === -1} />
+                                </div>
                             </div>
                         )
                     )}

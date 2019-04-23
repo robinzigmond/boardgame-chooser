@@ -1,10 +1,3 @@
-html, body {
-    text-align: center;
-    background-color: #1338ab;
-    color: #eddc23;
-    padding-bottom: 30px;
-}
-
 .App {
     position: relative;
 }
@@ -300,6 +293,7 @@ html, body {
     margin: auto;
     padding: 10px;
     text-align: left;
+    background-color: #081745;
 }
 
 .gamelist a {
@@ -323,6 +317,8 @@ html, body {
 .game-info {
     display: inline-block;
     width: 100%;
+    padding: 30px;
+    box-sizing: border-box;
     vertical-align: top;
     text-align: center;
 }
@@ -359,7 +355,7 @@ html, body {
 
 .filter-list {
     position: fixed;
-    width: 500px;
+    width: 700px;
     max-width: 80vw;
     max-height: 80vh;
     top: 50vh;
@@ -371,15 +367,32 @@ html, body {
     color: black;
     border: 3px solid black;
     z-index: 10;
+    font-size: 18px;
 }
 
 .filter-list .single-filter {
     margin: 3px auto;
     border-bottom: 1px dotted black;
+    overflow: auto;
 }
 
 .filter-list .single-filter .filter-name {
+    margin-left: 10px;
+    margin-bottom: 5px;
+    float: left;
+    text-align: left;
+}
+
+.filter-list .single-filter .filter-checks {
+    float: right;
     margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+.filter-list .single-filter input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    top: 4px;
 }
 
 .wrapper {
