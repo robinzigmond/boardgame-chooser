@@ -36,7 +36,7 @@
     border-radius: 5px;
 }
 
-.form-section button, #collection-info button {
+.form-section button, #collection-info button, button#info, button#info-close {
     font-size: 1em;
     border: 1px solid #540123;
     background-color: #eddc23;
@@ -46,6 +46,10 @@
     padding-top: 0.1em;
     margin-top: 5px;
     cursor: pointer;
+}
+
+button#info {
+    margin: 0 auto 30px auto;
 }
 
 .filter-list input[type="checkbox"] {
@@ -353,7 +357,7 @@
     color: #52ad14;
 }
 
-.filter-list {
+.filter-list, .site-info {
     position: fixed;
     width: 700px;
     max-width: 80vw;

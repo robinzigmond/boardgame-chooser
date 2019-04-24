@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import '../App.css';
+import SiteInfo from './SiteInfo.js';
 import FailureMessage from './FailureMessage.js';
 import CollectionInfo from './CollectionInfo.js';
 import Loader from './Loader.js';
@@ -164,6 +165,7 @@ class App extends Component {
             <div className="App">
                 <h1>Find a boardgame to play!</h1>
                 <h4>Import your BGG collection, give your preferences and get instant recommendations</h4>
+                <SiteInfo/>
                 {this.state.failure ? <FailureMessage close={this.closeBox} /> : null}
                 {this.state.showDuplicate ? <FailureMessage close={this.closeBox} duplicate={true} /> : null}
                 <CollectionInfo data={this.state.data.users} showForm={!this.state.data.users.length}
