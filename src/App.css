@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
 .App {
     position: relative;
 }
@@ -50,6 +52,10 @@
 
 button#info {
     margin: 0 auto 30px auto;
+}
+
+button#info-close {
+    margin-bottom: 15px;
 }
 
 .filter-list input[type="checkbox"] {
@@ -108,23 +114,34 @@ button#info {
     text-align: left;
     background-color: #540123;
     color: #eddc23;
+    height: 1.75em;
 }
 
 .select-text {
     width: 180px;
-    margin-block-start: 3px;
-    margin-block-end: 3px;
-    margin-inline-start: 3px;
+    -webkit-margin-before: 3px;
+            margin-block-start: 3px;
+    -webkit-margin-after: 3px;
+            margin-block-end: 3px;
+    -webkit-margin-start: 3px;
+            margin-inline-start: 3px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-left: 3px;
 }
 
 .select-arrow {
     display: inline-block;
     line-height: 1.1;
+    -webkit-transition: -webkit-transform 0.5s ease-in-out;
+    transition: -webkit-transform 0.5s ease-in-out;
     transition: transform 0.5s ease-in-out;
+    transition: transform 0.5s ease-in-out, -webkit-transform 0.5s ease-in-out;
 }
 
 .custom-select.open .select-arrow {
-    transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+            transform: rotate(180deg);
 }
 
 .select-body {
@@ -134,14 +151,21 @@ button#info {
     color: #540123;
     width: 205px;
     overflow: hidden;
-    transform: scaleY(0);
-    transform-origin: top;
+    -webkit-transform: scaleY(0);
+            transform: scaleY(0);
+    -webkit-transform-origin: top;
+            transform-origin: top;
+    -webkit-transition: -webkit-transform 0.3s ease-in-out;
+    transition: -webkit-transform 0.3s ease-in-out;
     transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
 }
 
 .custom-select.open .select-body {
-    transform: scaleY(1);
-    transition-duration: 0.5s;
+    -webkit-transform: scaleY(1);
+            transform: scaleY(1);
+    -webkit-transition-duration: 0.5s;
+            transition-duration: 0.5s;
 }
 
 .select-option {
@@ -165,10 +189,11 @@ button#info {
     height: 100px;
     top: 50vh;
     left: 50vw;
-    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
     background-color: white;
     color: black;
-    border: 3px solid black;
+    border: 1px solid black;
 }
 
 .close-box {
@@ -194,10 +219,11 @@ button#info {
     max-height: 500px;
     top: 50vh;
     left: 50vw;
-    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
     background-color: white;
     color: black;
-    border: 3px solid black;
+    border: 1px solid black;
 }
 
 .loader-box .loader {
@@ -205,7 +231,8 @@ button#info {
     width: 150px;
     height: 150px;
     margin: 50px auto;
-    animation: jump 0.5s alternate infinite;
+    -webkit-animation: jump 0.5s alternate infinite;
+            animation: jump 0.5s alternate infinite;
     background-size: cover;
 }
 
@@ -213,7 +240,8 @@ button#info {
     position: absolute;
     bottom: 0px;
     left: 50%;
-    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
 }
 
 .meeple-red {
@@ -232,6 +260,16 @@ button#info {
     background-image: url(./images/meeple_blue.png);
 }
 
+@-webkit-keyframes jump {
+    from {
+        bottom: calc(150px - 50vh);
+    }
+
+    to {
+        bottom: 30px;
+    }
+}
+
 @keyframes jump {
     from {
         bottom: calc(150px - 50vh);
@@ -243,7 +281,8 @@ button#info {
 }
 
 #collection-info {
-    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
     background-color: #981234;
     border-top: 1px solid #eddc23;
     border-bottom: 1px solid #eddc23;
@@ -253,7 +292,9 @@ button#info {
 
 #collection-info ul {
     display: inline;
-    padding-inline-start: 0px;
+    -webkit-padding-start: 0px;
+            padding-inline-start: 0px;
+    padding-left: 0;
 }
 
 #collection-info p {
@@ -322,7 +363,8 @@ button#info {
     display: inline-block;
     width: 100%;
     padding: 30px;
-    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
     vertical-align: top;
     text-align: center;
 }
@@ -340,7 +382,9 @@ button#info {
 }
 
 .filters ul {
-    padding-inline-start: 0px;
+    -webkit-padding-start: 0px;
+            padding-inline-start: 0px;
+    padding-left: 0;
 }
 
 .filters .filter-option {
@@ -366,10 +410,11 @@ button#info {
     left: 50vw;
     overflow-y: auto;
     padding: 20px;
-    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
     background-color: white;
     color: black;
-    border: 3px solid black;
+    border: 1px solid black;
     z-index: 10;
     font-size: 18px;
 }
@@ -467,7 +512,18 @@ button#info {
 
 @media only screen and (min-height: 550px) {
     .loader-box .loader {
-        animation-duration: 0.8s;
+        -webkit-animation-duration: 0.8s;
+                animation-duration: 0.8s;
+    }
+
+    @-webkit-keyframes jump {
+        from {
+            bottom: -250px;
+        }
+    
+        to {
+            bottom: 30px;
+        }
     }
 
     @keyframes jump {
