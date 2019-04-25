@@ -6,7 +6,7 @@ import CollectionInfo from './CollectionInfo.js';
 import Loader from './Loader.js';
 import Preferences from './Preferences.js';
 
-const backendUrl = "http://127.0.0.1:5000";
+const backendUrl = "https://wgtp-backend.herokuapp.com/";
 
 class App extends Component {
     constructor(props) {
@@ -17,8 +17,7 @@ class App extends Component {
         this.closeBox = this.closeBox.bind(this);
         this.removeUsers = this.removeUsers.bind(this);
 
-        this.state = {username: "", data: {games: [], users: []}, collections: 0,
-                        failure: false, showDuplicate: false};
+        this.state = {username: "", data: {games: [], users: []}, failure: false, showDuplicate: false};
     }
 
     handleUserNameChange(event) {
@@ -52,22 +51,37 @@ class App extends Component {
             let newGameIds = data.map(game => game.id);
             // split ids into chunks, to completely avoid URL character limits in the API call
             const chunkSize = 200;
-            let chunkedIds = [];
-            while (newGameIds.length > 0) {
-                let newChunk = [];
-                while (newChunk.length < chunkSize && newGameIds.length > 0) {
-                    newChunk.push(newGameIds.shift());
+            function chunks(arr, size) {
+                let chunks = [];
+                while (arr.length > 0) {
+                    let newChunk = [];
+                    while (newChunk.length < size && arr.length > 0) {
+                        newChunk.push(arr.shift());
+                    }
+                    chunks.push(newChunk);
                 }
-                chunkedIds.push(newChunk);
+                return chunks;            
             }
+
             let oldGames = prevData.games;
             let oldGameIds = oldGames.map(game => game.id);
             let gamesToAdd = data.filter(game => !oldGameIds.includes(game.id));
+
+            let newGameIdChunks = chunks(newGameIds, chunkSize);
+            let oldGameIdChunks = chunks(oldGameIds, chunkSize);
+
             let failure;
             (async () => {
                 // first loop through all existing users and find if they've rated any of the new games
                 for (let user of prevData.users) {
-                    for (let chunk of chunkedIds) {
+                    setRatings(user, newGameIdChunks, gamesToAdd);
+                }
+
+                // then, conversely, add the new user's ratings for all games already in collection
+                setRatings(this.state.username, oldGameIdChunks, oldGames);
+
+                async function setRatings(user, gameIdChunks, gamesToSearch) {
+                    for (let chunk of gameIdChunks) {
                         let params = chunk.map(String).join("-");
                         let resp = await fetch(`${backendUrl}/check_ratings/${user}/${params}`);
                         if (!resp.ok) {
@@ -78,13 +92,13 @@ class App extends Component {
                         let ratingInfo = await resp.json();
                         for (let id in ratingInfo) {
                             if (ratingInfo[id] !== null) {
-                                let ratedGame = gamesToAdd.find(gm => gm.id === +id);
+                                let ratedGame = gamesToSearch.find(gm => gm.id === +id);
                                 if (ratedGame) {
                                     if (ratedGame.ratings) {
                                         ratedGame.ratings[user] = ratingInfo[id];
                                     }
                                     else {
-                                        ratedGame.ratings = {[user]: ratingInfo[id]};
+                                        ratedGame.ratings[user] = {[user]: ratingInfo[id]};
                                     }
                                 }
                             }
@@ -97,24 +111,19 @@ class App extends Component {
                 return;
             }
             let updatedGames = oldGames.concat(gamesToAdd);
-            // Add ratings of the just-added user for all games on the new list
-            // (even those not in the new user's collection)
-            for (let game of data) {
-                let foundIt = updatedGames.find(gm => gm.id === game.id); // should always exist
-                if (foundIt.ratings) {
-                    foundIt.ratings[this.state.username] = game.my_rating;
-                }
-                else {
-                    foundIt.ratings = {[this.state.username]: game.my_rating};
-                }
-            }
-            // finally, add the username to the "users" property of each game object, for the games just added
+
+            // finally,
+            // 1) add the username to the "users" property of each game object, for the games just added
+            // 2) make sure each game has a "ratings" property
             updatedGames.forEach(game => {
                 if (!game.users) {
                     game.users = [];
                 }
                 if (data.map(gm => gm.id).includes(game.id)) {
                     game.users.push(this.state.username);
+                }
+                if (!game.ratings) {
+                    game.ratings = {};
                 }
             });
             this.setState({data: {users: prevData.users, games: updatedGames}, loading: false});

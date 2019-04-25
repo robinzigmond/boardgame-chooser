@@ -60,7 +60,7 @@ class FilterList extends Component {
                     {Array.from(this.state.itemNames).sort().map(
                         (name, index) => (
                             <div key={index} className="single-filter">
-                                <span className="filter-name">{name}:  </span>
+                                <span className="filter-name">{name}</span>
                                 <div className="filter-checks">
                                     <label htmlFor={`${name}Required`}>Require</label>
                                     <input type="checkbox" name={`${name}Required`}
