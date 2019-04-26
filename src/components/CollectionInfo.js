@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ImportSelect from './ImportSelect.js';
+import CustomCheckbox from './CustomCheckbox.js';
 
 class CollectionInfo extends Component {
     constructor(props) {
@@ -38,7 +39,8 @@ class CollectionInfo extends Component {
                     <p>Collections loaded for:</p>
                     <ul>{this.props.data.map((username, idx)=>(
                         <li key={idx}>
-                            <input type="checkbox" onChange={() => this.toggleRemoval(username)}/>
+                            <CustomCheckbox handleChange={() => this.toggleRemoval(username)}
+                            checked={this.state.toDelete.includes(username)} />
                             <span>{username}</span>
                         </li>
                     ))}</ul>

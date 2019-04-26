@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import CustomCheckbox from './CustomCheckbox.js';
 import CustomSelect from './CustomSelect.js';
 import RecommendationList from './RecommendationList.js';
 
@@ -179,8 +180,9 @@ class Preferences extends Component {
                             {this.timePresets.map(preset => (
                                 <div className="time-checkbox" key={preset.mins}>
                                     <label htmlFor={`timePreset${preset.mins}`}>{preset.label}:</label>
-                                    <input type="checkbox" value={preset.mins} onChange={this.handleTimePresetChange}
-                                    id={`timePreset${preset.mins}`} checked={+this.state.availableTime === preset.mins}/>
+                                    <CustomCheckbox value={preset.mins} handleChange={this.handleTimePresetChange}
+                                    id={`timePreset${preset.mins}`}
+                                    checked={+this.state.availableTime === preset.mins}/>
                                 </div>
                             ))}
                         </div>
