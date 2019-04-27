@@ -178,6 +178,7 @@ button#info-close {
 .select-option {
     text-align: left;
     width: 100%;
+    height: 1.5em;
     padding-left: 3px;
 }
 
@@ -493,7 +494,7 @@ button#info-close {
     }
 }
 
-@media only screen and (min-width: 650px) {
+@media only screen and (min-width: 750px) {
     .gamelist {
         margin: auto 170px auto 10px;
     }

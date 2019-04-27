@@ -174,7 +174,7 @@ class Preferences extends Component {
                     </div>
                     <div className="input-block">
                         <label htmlFor="availableTime">Desired Playing Time (minutes)</label>
-                        <input type="text" id="availableTime" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
+                        <input type="number" id="availableTime" name="availableTime" value={this.state.availableTime} onChange={this.handleAvailableTimeChange}/>
                         <div>
                             Or select:
                             {this.timePresets.map(preset => (

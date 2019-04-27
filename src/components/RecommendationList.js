@@ -82,57 +82,59 @@ class RecommendationList extends Component {
             return (
                 <div className="game-list" ref={this.container}>
                     {this.props.games.length ? (
-                        <div>
-                            <h3>
-                                Suitable Games
-                                {this.state.lastPage > 1 ? ` - page ${this.state.page} of ${this.state.lastPage}` : null}
-                            </h3>
-                            {this.state.lastPage > 1 ? 
-                            <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
-                            onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
-                            : null}
-                            <div className="gamelist">
-                                {this.props.games.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
-                                    <div className="game-info" key={game.id}>
-                                        <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
-                                        rel="noopener noreferrer">
-                                            <img alt={`${game.name}`} src={game.thumbnail} />
-                                            <h4>
-                                                {game.name}
-                                                {getInfo ? ` (${getInfo(game)})` : null}
-                                            </h4>
-                                        </a>
-                                    </div>
-                                ))}
+                        <React.Fragment>
+                            <div className="filters">
+                                <p>Filter results by:</p>
+                                <ul>
+                                    {this.props.filters.map((filter, index) => {
+                                            let currentFilter = this.props.flags[filter];
+                                            let used = currentFilter && Object.keys(currentFilter).some(
+                                                flg => currentFilter[flg] !== 0
+                                            );
+                                            return (
+                                                <li key={index}
+                                                className={"filter-option" + (used ? " filter-used" : "")}
+                                                onClick={() => this.props.filterDisplay(filter)}>
+                                                    <span onMouseEnter={used ? (e) => this.handleMouseEnter(e, filter) : null}
+                                                    onMouseLeave={used ? this.handleMouseLeave : null}>
+                                                        {filter}
+                                                    </span>
+                                                </li>
+                                            )
+                                        }
+                                    )}
+                                </ul>
                             </div>
-                            {this.state.lastPage > 1 ? 
-                            <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
-                            onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
-                            : null}
-                        </div>
+                            <div>
+                                <h3>
+                                    Suitable Games
+                                    {this.state.lastPage > 1 ? ` - page ${this.state.page} of ${this.state.lastPage}` : null}
+                                </h3>
+                                {this.state.lastPage > 1 ? 
+                                <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
+                                onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
+                                : null}
+                                <div className="gamelist">
+                                    {this.props.games.slice((this.state.page - 1) * this.gamesPerPage, this.state.page * this.gamesPerPage).map(game => (
+                                        <div className="game-info" key={game.id}>
+                                            <a href={`https://boardgamegeek.com/boardgame/${game.id}`} target="_blank"
+                                            rel="noopener noreferrer">
+                                                <img alt={`${game.name}`} src={game.thumbnail} />
+                                                <h4>
+                                                    {game.name}
+                                                    {getInfo ? ` (${getInfo(game)})` : null}
+                                                </h4>
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                                {this.state.lastPage > 1 ? 
+                                <Pagination first={this.first} next={this.next} prev={this.prev} last={this.last}
+                                onFirst={this.state.page === 1} onLast = {this.state.page === this.state.lastPage}/>
+                                : null}
+                            </div>
+                        </React.Fragment>
                     ) : <p>Unfortunately, none of your games fit the filters you've selected!</p>}
-                    <div className="filters">
-                        <p>Filter results by:</p>
-                        <ul>
-                            {this.props.filters.map((filter, index) => {
-                                    let currentFilter = this.props.flags[filter];
-                                    let used = currentFilter && Object.keys(currentFilter).some(
-                                        flg => currentFilter[flg] !== 0
-                                    );
-                                    return (
-                                        <li key={index}
-                                        className={"filter-option" + (used ? " filter-used" : "")}
-                                        onClick={() => this.props.filterDisplay(filter)}>
-                                            <span onMouseEnter={used ? (e) => this.handleMouseEnter(e, filter) : null}
-                                            onMouseLeave={used ? this.handleMouseLeave : null}>
-                                                {filter}
-                                            </span>
-                                        </li>
-                                    )
-                                }
-                            )}
-                        </ul>
-                    </div>
                     {this.props.showFilters ?
                     <FilterList games={this.props.games} updateFilters={this.props.updateFilters}
                     currentFlags={this.props.flags[this.props.showFilters]}
