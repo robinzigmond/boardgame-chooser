@@ -8,6 +8,8 @@
     "react-scripts": "2.1.1"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -21,5 +23,9 @@
     "not dead",
     "not ie <= 10",
     "not op_mini all"
-  ]
+  ],
+  "homepage": "https://robinzigmond.github.io/which-game-to-play",
+  "devDependencies": {
+    "gh-pages": "^2.0.1"
+  }
 }
