@@ -4,19 +4,19 @@ self.__precacheManifest = [
     "url": "/which-game-to-play/static/js/runtime~main.6c046a39.js"
   },
   {
-    "revision": "02bbfd4aa4b95ca0bbbb",
-    "url": "/which-game-to-play/static/js/main.02bbfd4a.chunk.js"
+    "revision": "32bad2e49045f0c59e4f",
+    "url": "/which-game-to-play/static/js/main.32bad2e4.chunk.js"
   },
   {
     "revision": "14d7214d2e7be3047885",
     "url": "/which-game-to-play/static/js/1.14d7214d.chunk.js"
   },
   {
-    "revision": "02bbfd4aa4b95ca0bbbb",
-    "url": "/which-game-to-play/static/css/main.29cd3822.chunk.css"
+    "revision": "32bad2e49045f0c59e4f",
+    "url": "/which-game-to-play/static/css/main.d3ad1351.chunk.css"
   },
   {
-    "revision": "1bb632848bfe9941f680fd220d1b71cc",
+    "revision": "7c685e04d9fa48f77416a39f4e6cdcdb",
     "url": "/which-game-to-play/index.html"
   }
 ];
