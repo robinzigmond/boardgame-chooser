@@ -6,8 +6,7 @@ import CollectionInfo from './CollectionInfo.js';
 import Loader from './Loader.js';
 import Preferences from './Preferences.js';
 
-//const backendUrl = "https://wgtp-backend.herokuapp.com";
-const backendUrl = "https://wgtp-test.herokuapp.com";
+const backendUrl = "https://wgtp-backend.herokuapp.com";
 const poll_interval = 5000;
 const max_tries = 20;
 
