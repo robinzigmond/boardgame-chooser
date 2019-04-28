@@ -6,22 +6,62 @@ import CollectionInfo from './CollectionInfo.js';
 import Loader from './Loader.js';
 import Preferences from './Preferences.js';
 
-const backendUrl = "https://wgtp-backend.herokuapp.com";
+//const backendUrl = "https://wgtp-backend.herokuapp.com";
+const backendUrl = "https://wgtp-test.herokuapp.com";
+const poll_interval = 5000;
+const max_tries = 20;
 
 class App extends Component {
     constructor(props) {
         super(props);
 
         this.handleUserNameChange = this.handleUserNameChange.bind(this);
+        this.checkStatus = this.checkStatus.bind(this);
+        this.handleRequest = this.handleRequest.bind(this);
         this.handleImportSubmit = this.handleImportSubmit.bind(this);
         this.closeBox = this.closeBox.bind(this);
         this.removeUsers = this.removeUsers.bind(this);
 
+        this.tries = 0;
+        this.intervals = {};
+
         this.state = {username: "", data: {games: [], users: []}, failure: false, showDuplicate: false};
+    }
+
+    componentWillUnmount() {
+        for (let interval_id of this.intervals) {
+            clearInterval(interval_id);
+        }
     }
 
     handleUserNameChange(event) {
         this.setState({username: event.target.value});
+    }
+
+    async checkStatus(id, cb) {
+        this.tries++;
+        let raw = await fetch(`${backendUrl}/result/${id}`);
+        let res = await raw.json();
+        if (res.done) {
+            clearInterval(this.intervals[id]);
+            this.tries = 0;
+            cb(res.result);
+        }
+        else if (res.failed || (this.tries >= max_tries)) {
+            clearInterval(this.intervals[id]);
+            this.tries = 0;
+            this.setState({failure: true, loading: false});
+        }
+    }
+
+    async handleRequest(url, cb) {
+        let raw = await fetch(url);
+        if (!raw.ok) {
+            this.setState({failure: true, loading: false});
+        }
+        let json = await raw.json();
+        let id = json["job_id"];
+        this.intervals[id] = setInterval(() => this.checkStatus(id, cb), poll_interval);
     }
 
     async handleImportSubmit(e) {
@@ -31,106 +71,90 @@ class App extends Component {
             return;
         }
         this.setState({loading: true, failure: false});
-        
-        let collection;
-        try {
-            collection = await fetch(`${backendUrl}/collection/${this.state.username}`);
-        }
-        catch {
-            this.setState({failure: true, loading: false});
-            return;           
-        }
-        if (!collection.ok) {
-            this.setState({failure: true, loading: false});
-            return;
-        }
-        let data = await collection.json();
-        if (data && data.length) {
-            let prevData = this.state.data;
-            prevData.users.push(this.state.username);
-            let newGameIds = data.map(game => game.id);
-            // split ids into chunks, to completely avoid URL character limits in the API call
-            const chunkSize = 200;
-            function chunks(arr, size) {
-                let chunks = [];
-                while (arr.length > 0) {
-                    let newChunk = [];
-                    while (newChunk.length < size && arr.length > 0) {
-                        newChunk.push(arr.shift());
-                    }
-                    chunks.push(newChunk);
-                }
-                return chunks;            
-            }
 
-            let oldGames = prevData.games;
-            let oldGameIds = oldGames.map(game => game.id);
-            let gamesToAdd = data.filter(game => !oldGameIds.includes(game.id));
-
-            let newGameIdChunks = chunks(newGameIds, chunkSize);
-            let oldGameIdChunks = chunks(oldGameIds, chunkSize);
-
-            let failure;
-            (async () => {
-                // first loop through all existing users and find if they've rated any of the new games
-                for (let user of prevData.users) {
-                    setRatings(user, newGameIdChunks, gamesToAdd);
-                }
-
-                // then, conversely, add the new user's ratings for all games already in collection
-                setRatings(this.state.username, oldGameIdChunks, oldGames);
-
-                async function setRatings(user, gameIdChunks, gamesToSearch) {
-                    for (let chunk of gameIdChunks) {
-                        let params = chunk.map(String).join("-");
-                        let resp = await fetch(`${backendUrl}/check_ratings/${user}/${params}`);
-                        if (!resp.ok) {
-                            this.setState({failure: true, loading: false});
-                            failure = true;
-                            return;
+        this.handleRequest(`${backendUrl}/collection/${this.state.username}`, data => {
+            if (data && data.length) {
+                let prevData = this.state.data;
+                prevData.users.push(this.state.username);
+                let newGameIds = data.map(game => game.id);
+                // split ids into chunks, to completely avoid URL character limits in the API call
+                const chunkSize = 200;
+                function chunks(arr, size) {
+                    let chunks = [];
+                    while (arr.length > 0) {
+                        let newChunk = [];
+                        while (newChunk.length < size && arr.length > 0) {
+                            newChunk.push(arr.shift());
                         }
-                        let ratingInfo = await resp.json();
-                        for (let id in ratingInfo) {
-                            if (ratingInfo[id] !== null) {
-                                let ratedGame = gamesToSearch.find(gm => gm.id === +id);
-                                if (ratedGame) {
-                                    if (ratedGame.ratings) {
-                                        ratedGame.ratings[user] = ratingInfo[id];
-                                    }
-                                    else {
-                                        ratedGame.ratings[user] = {[user]: ratingInfo[id]};
+                        chunks.push(newChunk);
+                    }
+                    return chunks;            
+                }
+    
+                let oldGames = prevData.games;
+                let oldGameIds = oldGames.map(game => game.id);
+                let gamesToAdd = data.filter(game => !oldGameIds.includes(game.id));
+    
+                let newGameIdChunks = chunks(newGameIds, chunkSize);
+                let oldGameIdChunks = chunks(oldGameIds, chunkSize);
+    
+                let failure;
+                (async () => {
+                    let setRatings = async (user, gameIdChunks, gamesToSearch) => {
+                        for (let chunk of gameIdChunks) {
+                            let params = chunk.map(String).join("-");
+                            this.handleRequest(`${backendUrl}/check_ratings/${user}/${params}`, ratingInfo => {
+                                for (let id in ratingInfo) {
+                                    if (ratingInfo[id] !== null) {
+                                        let ratedGame = gamesToSearch.find(gm => gm.id === +id);
+                                        if (ratedGame) {
+                                            if (ratedGame.ratings) {
+                                                ratedGame.ratings[user] = ratingInfo[id];
+                                            }
+                                            else {
+                                                ratedGame.ratings[user] = {[user]: ratingInfo[id]};
+                                            }
+                                        }
                                     }
                                 }
-                            }
+                            });
                         }
                     }
-                }
-            })()
-            if (failure) {
-                this.setState({failure: true, loading: false});
-                return;
-            }
-            let updatedGames = oldGames.concat(gamesToAdd);
 
-            // finally,
-            // 1) add the username to the "users" property of each game object, for the games just added
-            // 2) make sure each game has a "ratings" property
-            updatedGames.forEach(game => {
-                if (!game.users) {
-                    game.users = [];
+                    // first loop through all existing users and find if they've rated any of the new games
+                    for (let user of prevData.users) {
+                        setRatings(user, newGameIdChunks, gamesToAdd);
+                    }
+    
+                    // then, conversely, add the new user's ratings for all games already in collection
+                    setRatings(this.state.username, oldGameIdChunks, oldGames);
+                })()
+                if (failure) {
+                    this.setState({failure: true, loading: false});
+                    return;
                 }
-                if (data.map(gm => gm.id).includes(game.id)) {
-                    game.users.push(this.state.username);
-                }
-                if (!game.ratings) {
-                    game.ratings = {};
-                }
-            });
-            this.setState({data: {users: prevData.users, games: updatedGames}, loading: false});
-        }
-        else {
-            this.setState({failure: true, loading: false});
-        }
+                let updatedGames = oldGames.concat(gamesToAdd);
+    
+                // finally,
+                // 1) add the username to the "users" property of each game object, for the games just added
+                // 2) make sure each game has a "ratings" property
+                updatedGames.forEach(game => {
+                    if (!game.users) {
+                        game.users = [];
+                    }
+                    if (data.map(gm => gm.id).includes(game.id)) {
+                        game.users.push(this.state.username);
+                    }
+                    if (!game.ratings) {
+                        game.ratings = {};
+                    }
+                });
+                this.setState({data: {users: prevData.users, games: updatedGames}, loading: false});
+            }
+            else {
+                this.setState({failure: true, loading: false});
+            }            
+        });
     }
 
     closeBox() {
