@@ -1,13 +1,13 @@
 {
-  "main.css": "/which-game-to-play/static/css/main.d3ad1351.chunk.css",
-  "main.js": "/which-game-to-play/static/js/main.32bad2e4.chunk.js",
-  "main.js.map": "/which-game-to-play/static/js/main.32bad2e4.chunk.js.map",
-  "static/js/1.14d7214d.chunk.js": "/which-game-to-play/static/js/1.14d7214d.chunk.js",
-  "static/js/1.14d7214d.chunk.js.map": "/which-game-to-play/static/js/1.14d7214d.chunk.js.map",
+  "main.css": "/which-game-to-play/static/css/main.dd47dbd6.chunk.css",
+  "main.js": "/which-game-to-play/static/js/main.e86df6a5.chunk.js",
+  "main.js.map": "/which-game-to-play/static/js/main.e86df6a5.chunk.js.map",
+  "static/js/1.10dace3f.chunk.js": "/which-game-to-play/static/js/1.10dace3f.chunk.js",
+  "static/js/1.10dace3f.chunk.js.map": "/which-game-to-play/static/js/1.10dace3f.chunk.js.map",
   "runtime~main.js": "/which-game-to-play/static/js/runtime~main.6c046a39.js",
   "runtime~main.js.map": "/which-game-to-play/static/js/runtime~main.6c046a39.js.map",
-  "static/css/main.d3ad1351.chunk.css.map": "/which-game-to-play/static/css/main.d3ad1351.chunk.css.map",
+  "static/css/main.dd47dbd6.chunk.css.map": "/which-game-to-play/static/css/main.dd47dbd6.chunk.css.map",
   "index.html": "/which-game-to-play/index.html",
-  "precache-manifest.2e0c7b00734905704dd8b49eab555158.js": "/which-game-to-play/precache-manifest.2e0c7b00734905704dd8b49eab555158.js",
+  "precache-manifest.9be4afce153139573e135ed44342d2e8.js": "/which-game-to-play/precache-manifest.9be4afce153139573e135ed44342d2e8.js",
   "service-worker.js": "/which-game-to-play/service-worker.js"
 }
