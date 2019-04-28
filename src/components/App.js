@@ -6,7 +6,7 @@ import CollectionInfo from './CollectionInfo.js';
 import Loader from './Loader.js';
 import Preferences from './Preferences.js';
 
-const backendUrl = "https://wgtp-backend.herokuapp.com/";
+const backendUrl = "https://wgtp-backend.herokuapp.com";
 
 class App extends Component {
     constructor(props) {
