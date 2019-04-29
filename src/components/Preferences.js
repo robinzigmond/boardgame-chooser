@@ -131,7 +131,14 @@ class Preferences extends Component {
                 let sortFunction;
                 switch(state.gameOrder) {
                     case "alphabetical":
-                        sortFunction = (a,b) => ((b.name - a.name));
+                        sortFunction = (a,b) => {
+                            // it's surprisingly unintutitive to write a sort function to order lexicographically
+                            // on the result of a property extraction! But this works:
+                            let tempArray = [a.name, b.name];
+                            tempArray.sort();
+                            return 1 - 2*(tempArray[0] === a.name);
+                            // (hacky shorthand to return -1 if the comparison is true and 1 if false)
+                        };
                         break;
                     case "yearpublished":
                         sortFunction = (a,b) => ((a.yearpublished || Infinity) - (b.yearpublished || Infinity));
