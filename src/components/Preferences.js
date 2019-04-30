@@ -117,6 +117,30 @@ class Preferences extends Component {
     }
 
     handleSubmit(clearFilters=true) {
+        function normaliseName(name) {
+            // function for comparing game names. We lowercase the name and strip off any leading "the" or "a"
+            // followed by spaces, as well as any leading non-alphanumeric characters
+            return name.toLowerCase().replace(/^(((the|a|an)\s+)|[^A-Za-z0-9]+)/, "");
+        }
+
+        function compareWithFallBack(compare, fallback) {
+            // higher-order function which takes 2 comparison functions (functions of 2 variables which can be
+            // used as arguments to .sort), and sorts by the first one, but then by the second if they compare
+            // equal under the first
+            return (a, b) => compare(a, b) ? compare(a, b) : fallback(a, b);
+        }
+
+        function alphabeticalSort(a, b) {
+            // default sort function, to sort games alphabetically but ignoring initial "the", "a" and
+            // non-alphanumeric characters
+            let aNormalised = normaliseName(a.name);
+            let bNormalised = normaliseName(b.name);
+            let tempArray = [aNormalised, bNormalised];
+            tempArray.sort();
+            return 1 - 2*(tempArray[0] === aNormalised);
+            // (hacky shorthand to return -1 if the comparison is true and 1 if false)
+        }
+
         if (clearFilters) {
             this.initialiseFlags(() => this.handleSubmit(false));
             return;   
@@ -131,24 +155,26 @@ class Preferences extends Component {
                 let sortFunction;
                 switch(state.gameOrder) {
                     case "alphabetical":
-                        sortFunction = (a,b) => {
-                            // it's surprisingly unintutitive to write a sort function to order lexicographically
-                            // on the result of a property extraction! But this works:
-                            let tempArray = [a.name, b.name];
-                            tempArray.sort();
-                            return 1 - 2*(tempArray[0] === a.name);
-                            // (hacky shorthand to return -1 if the comparison is true and 1 if false)
-                        };
+                        sortFunction = alphabeticalSort;
                         break;
                     case "yearpublished":
-                        sortFunction = (a,b) => ((a.yearpublished || Infinity) - (b.yearpublished || Infinity));
+                        sortFunction = compareWithFallBack(
+                            (a,b) => ((a.yearpublished || Infinity) - (b.yearpublished || Infinity)),
+                            alphabeticalSort
+                        );
                         break;
                     case "bggRank":
-                        sortFunction = (a,b) => ((a.stats.ranks[0].value || Infinity) - (b.stats.ranks[0].value || Infinity));
+                        sortFunction = compareWithFallBack(
+                            (a,b) => ((a.stats.ranks[0].value || Infinity) - (b.stats.ranks[0].value || Infinity)),
+                            alphabeticalSort
+                        );
                         break;
                     default:
                         let userToRate = this.state.gameOrder.slice(6);
-                        sortFunction = (a,b) => ((b.ratings[userToRate] || 0) - (a.ratings[userToRate] || 0));
+                        sortFunction = compareWithFallBack(
+                            (a,b) => ((b.ratings[userToRate] || 0) - (a.ratings[userToRate] || 0)),
+                            alphabeticalSort
+                        );
                         break;
                 }
                 foundGames.sort(sortFunction);
