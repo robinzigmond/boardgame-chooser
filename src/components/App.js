@@ -15,6 +15,7 @@ class App extends Component {
         super(props);
 
         this.handleUserNameChange = this.handleUserNameChange.bind(this);
+        this.clearAndRemove = this.clearAndRemove.bind(this);
         this.checkStatus = this.checkStatus.bind(this);
         this.handleRequest = this.handleRequest.bind(this);
         this.handleImportSubmit = this.handleImportSubmit.bind(this);
@@ -25,13 +26,19 @@ class App extends Component {
 
         this.tries = 0;
         this.intervals = {};
+        // used to track whether any more Ajax requests need to be made, while importing a user's collection
+        this.pendingRequests = false;
+        this.meepleColours = ["red", "yellow", "green", "blue"];
 
-        this.state = {username: "", data: {games: [], users: []}, failure: false, showDuplicate: false};
+        let randColour = this.meepleColours[Math.floor(Math.random()*this.meepleColours.length)];
+
+        this.state = {username: "", data: {games: [], users: []}, failure: false, showDuplicate: false,
+            loading: false, meepleColour: randColour};
     }
 
     componentWillUnmount() {
-        for (let interval_id of this.intervals) {
-            clearInterval(interval_id);
+        for (let id of this.intervals) {
+            this.clearAndRemove(id);
         }
     }
 
@@ -39,19 +46,31 @@ class App extends Component {
         this.setState({username: event.target.value});
     }
 
+    clearAndRemove(jobId) {
+        clearInterval(this.intervals[jobId]);
+        delete this.intervals[jobId];
+    }
+
     async checkStatus(id, cb) {
         this.tries++;
         let raw = await fetch(`${backendUrl}/result/${id}`);
         let res = await raw.json();
         if (res.done) {
-            clearInterval(this.intervals[id]);
+            this.clearAndRemove(id);
             this.tries = 0;
             cb(res.result);
+
+            // only remove the loader when we know no more Ajax requests will be sent out,
+            // and there are no jobs still pending
+            if (!this.pendingRequests && !Object.keys(this.intervals).length) {
+                this.setState({loading: false});
+            }
         }
         else if (res.failed || (this.tries >= max_tries)) {
-            clearInterval(this.intervals[id]);
+            this.clearAndRemove(id);
             this.tries = 0;
             this.setState({failure: true, loading: false});
+            this.pendingRequests = false;
         }
     }
 
@@ -59,6 +78,7 @@ class App extends Component {
         let raw = await fetch(url);
         if (!raw.ok) {
             this.setState({failure: true, loading: false});
+            this.pendingRequests = false;
         }
         let json = await raw.json();
         let id = json["job_id"];
@@ -94,6 +114,7 @@ class App extends Component {
         this.handleRequest(`${backendUrl}/collection/${this.state.username}`, data => {
             this.setState(state => {
                 if (data && data.length) {
+                    this.pendingRequests = true;
                     let prevData = {games: [...state.data.games],
                         users: [...state.data.users]};
                     prevData.users.push(state.username);
@@ -127,6 +148,9 @@ class App extends Component {
         
                         // then, conversely, add the new user's ratings for all games already in collection
                         oldGames = await this.setRatings(this.state.username, oldGameIdChunks, oldGames);
+
+                        // no more requests will be sent out
+                        this.pendingRequests = false;
                     })()
 
                     let updatedGames = oldGames.concat(gamesToAdd);
@@ -145,7 +169,7 @@ class App extends Component {
                             game.ratings = {};
                         }
                     });
-                    return {data: {users: prevData.users, games: updatedGames}, loading: false};
+                    return {data: {users: prevData.users, games: updatedGames}};
                 }
                 else {
                     return {failure: true, loading: false};
@@ -160,9 +184,9 @@ class App extends Component {
             this.setState({showDuplicate: true});
         }
         else {
-            this.setState({loading: true, failure: false}, this.getUserData);
+            let randColour = this.meepleColours[Math.floor(Math.random()*this.meepleColours.length)];
+            this.setState({loading: true, failure: false, meepleColour: randColour}, this.getUserData);
         }
-
     }
 
     closeBox() {
@@ -212,7 +236,7 @@ class App extends Component {
                 <CollectionInfo data={this.state.data.users} showForm={!this.state.data.users.length}
                 handleUserNameChange={this.handleUserNameChange} handleImportSubmit={this.handleImportSubmit}
                 removeUsers={this.removeUsers} key={this.state.data.users} />
-                {this.state.loading ? <Loader /> : null}
+                {this.state.loading ? <Loader colour={this.state.meepleColour}/> : null}
                 {!this.state.loading && this.state.data.games.length ?
                 <Preferences key={dataToUse.length} data={dataToUse} users={this.state.data.users} /> : null}
             </div>
