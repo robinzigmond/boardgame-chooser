@@ -71,6 +71,9 @@ class RecommendationList extends Component {
                 case "yearpublished":
                     getInfo = (gm => this.convertRating(gm.yearpublished, 0, "unknown"));
                     break;
+                case "weight":
+                    getInfo = (gm => this.convertRating(gm.stats.averageweight, 2, "not enough data"));
+                    break;
                 case "bggRank":
                     getInfo = (gm => this.convertRating(gm.stats.ranks[0].value, 0, "not ranked"));
                     break;

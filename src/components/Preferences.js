@@ -21,10 +21,13 @@ class Preferences extends Component {
         this.handlePlayerCountChange = this.handlePlayerCountChange.bind(this);
         this.handleAvailableTimeChange = this.handleAvailableTimeChange.bind(this);
         this.handleTimePresetChange = this.handleTimePresetChange.bind(this);
+        this.handleMinWeightChange = this.handleMinWeightChange.bind(this);
+        this.handleMaxWeightChange = this.handleMaxWeightChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {playerCount: 4, availableTime: 30,
-            gameOrder: "alphabetical", allGames: [],
+            gameOrder: "alphabetical", showWeightFilters: false,
+            minWeight: 0, maxWeight: 5, allGames: [],
             given: false, filteredGames: [], flags: {}, showFilters: false};
     }
 
@@ -33,7 +36,9 @@ class Preferences extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.gameOrder !== this.state.gameOrder) {
+        if (prevState.gameOrder !== this.state.gameOrder
+            || prevState.minWeight !== this.state.minWeight
+            || prevState.maxWeight !== this.state.maxWeight) {
             this.handleSubmit(false);
         }
     }
@@ -112,6 +117,14 @@ class Preferences extends Component {
         }
     }
 
+    handleMinWeightChange(val) {
+        this.setState({minWeight: val});
+    }
+
+    handleMaxWeightChange(val) {
+        this.setState({maxWeight: val});
+    }
+
     handleOrderChange(val) {
         this.setState({gameOrder: val});
     }
@@ -151,7 +164,9 @@ class Preferences extends Component {
                     game.minplayers <= state.playerCount
                     && game.maxplayers >= state.playerCount
                     && game.minplaytime <= state.availableTime
-                    && game.maxplaytime >= state.availableTime);
+                    && game.maxplaytime >= state.availableTime
+                    && game.stats.averageweight >= state.minWeight
+                    && game.stats.averageweight <= state.maxWeight);
                 let sortFunction;
                 switch(state.gameOrder) {
                     case "alphabetical":
@@ -162,6 +177,12 @@ class Preferences extends Component {
                             (a,b) => ((a.yearpublished || Infinity) - (b.yearpublished || Infinity)),
                             alphabeticalSort
                         );
+                        break;
+                    case "weight":
+                        sortFunction = compareWithFallBack(
+                            (a,b) => ((a.stats.averageweight || Infinity) - (b.stats.averageweight || Infinity)),
+                            alphabeticalSort
+                        )
                         break;
                     case "bggRank":
                         sortFunction = compareWithFallBack(
@@ -196,7 +217,8 @@ class Preferences extends Component {
             ratingOrders = [{value: `rating${users[0]}`, text: "My Rating"}];
         }
         ratingOrders.unshift({value: "alphabetical", text: "Name (alphabetical)"},
-            {value: "yearpublished", text: "Year published"});
+            {value: "yearpublished", text: "Year published"},
+            {value: "weight", text: "Game weight (complexity)"});
         ratingOrders.push({value: "bggRank", text: "BGG ranking list position"});
         return (
             <div>
@@ -220,6 +242,23 @@ class Preferences extends Component {
                             ))}
                         </div>
                     </div>
+                    <div className="input-block standalone">
+                        <button type="button" onClick={() => this.setState(state => ({showWeightFilters: !state.showWeightFilters}))}>
+                            {this.state.showWeightFilters ? "Hide weight filters" : "Filter by weight (complexity)"}
+                        </button>
+                    </div>
+                    {this.state.showWeightFilters ?
+                    <div className="input-block mini-select">
+                        <p className="select-label">Minimum game weight:</p>
+                        <CustomSelect options={[0,1,2,3,4,5].filter(num => num < this.state.maxWeight)
+                        .map(num => ({value: num, text: num}))} value={this.state.minWeight}
+                        updateParent={this.handleMinWeightChange}/>
+                        <p className="select-label">Maximum game weight:</p>
+                        <CustomSelect options={[0,1,2,3,4,5].filter(num => num > this.state.minWeight)
+                        .map(num => ({value: num, text: num}))} value={this.state.maxWeight}
+                        updateParent={this.handleMaxWeightChange}/>
+                    </div>
+                    : null }
                     <div className="input-block">
                         <p className="select-label">Order results by:</p>
                         <CustomSelect options={ratingOrders} value={ratingOrders[0].value}

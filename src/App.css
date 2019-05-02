@@ -18,6 +18,11 @@
     margin: 2px auto;
 }
 
+.form-section .input-block.standalone {
+    display: block;
+    margin-top: 8px;
+}
+
 .form-section input, .form-section .custom-select, .form-section label,
 .form-section button, #collection-info button {
     margin-left: 10px;
@@ -116,16 +121,26 @@ button#info-close {
     border: 1px solid #540123;
 }
 
+.mini-select .custom-select {
+    margin-right: 10px;
+}
+
 .select-main {
-    width: 205px;
+    width: 220px;
     text-align: left;
     background-color: #540123;
     color: #eddc23;
     height: 1.75em;
 }
 
+.mini-select .select-main {
+    width: 50px;
+    height: 1.5em;
+    line-height: 1;
+}
+
 .select-text {
-    width: 180px;
+    width: 190px;
     -webkit-margin-before: 3px;
             margin-block-start: 3px;
     -webkit-margin-after: 3px;
@@ -135,6 +150,10 @@ button#info-close {
     margin-top: 3px;
     margin-bottom: 3px;
     padding-left: 3px;
+}
+
+.mini-select .select-text {
+    width: 20px;
 }
 
 .select-arrow {

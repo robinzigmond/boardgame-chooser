@@ -23,7 +23,7 @@ class CustomSelect extends Component {
             <div className={classes}>
                 <div className="select-main" onClick={() => this.setState(({open}) => ({open: !open}))}>
                     <p className="select-text">
-                        {this.props.options.find(opt => opt.value === this.state.value).text}
+                        {this.props.options.find(opt => String(opt.value) === String(this.state.value)).text}
                     </p>
                     <div className="select-arrow">
                         &#9660;
