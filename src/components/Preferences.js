@@ -27,7 +27,7 @@ class Preferences extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {playerCount: 4, availableTime: 30,
             gameOrder: "alphabetical", showWeightFilters: false,
-            minWeight: 0, maxWeight: 5, allGames: [],
+            minWeight: 1, maxWeight: 5, allGames: [],
             given: false, filteredGames: [], flags: {}, showFilters: false};
     }
 
@@ -250,11 +250,11 @@ class Preferences extends Component {
                     {this.state.showWeightFilters ?
                     <div className="input-block mini-select">
                         <p className="select-label">Minimum game weight:</p>
-                        <CustomSelect options={[0,1,2,3,4,5].filter(num => num < this.state.maxWeight)
+                        <CustomSelect options={[1,2,3,4,5].filter(num => num < this.state.maxWeight)
                         .map(num => ({value: num, text: num}))} value={this.state.minWeight}
                         updateParent={this.handleMinWeightChange}/>
                         <p className="select-label">Maximum game weight:</p>
-                        <CustomSelect options={[0,1,2,3,4,5].filter(num => num > this.state.minWeight)
+                        <CustomSelect options={[1,2,3,4,5].filter(num => num > this.state.minWeight)
                         .map(num => ({value: num, text: num}))} value={this.state.maxWeight}
                         updateParent={this.handleMaxWeightChange}/>
                     </div>
