@@ -175,7 +175,7 @@ button#info-close {
     z-index: 5;
     background-color: white;
     color: #540123;
-    width: 205px;
+    width: 220px;
     overflow: hidden;
     -webkit-transform: scaleY(0);
             transform: scaleY(0);
@@ -185,6 +185,10 @@ button#info-close {
     transition: -webkit-transform 0.3s ease-in-out;
     transition: transform 0.3s ease-in-out;
     transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
+}
+
+.mini-select .select-body {
+    width: 50px;
 }
 
 .custom-select.open .select-body {
