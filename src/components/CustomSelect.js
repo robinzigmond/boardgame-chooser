@@ -9,6 +9,14 @@ class CustomSelect extends Component {
         this.state = {value: this.props.value, open: false};
     }
 
+    componentDidUpdate(prevProps) {
+        let newLength = this.props.options.length;
+        let oldLength = prevProps.options.length
+        if ((newLength === 1 && oldLength > 1) || (newLength > 1 && oldLength === 1)) {
+            this.setState({open: false});
+        }
+    }
+
     selectOption(e) {
         let value = e.target.dataset.value;
         this.setState({value, open: false}, () => this.props.updateParent(value));
@@ -21,18 +29,23 @@ class CustomSelect extends Component {
         }
         return (
             <div className={classes}>
-                <div className="select-main" onClick={() => this.setState(({open}) => ({open: !open}))}>
-                    <p className="select-text">
+                <div className="select-main"
+                onClick={() => this.setState(({open}) => (
+                    {open: this.props.options.length > 1 ? !open : false}
+                ))}>
+                <p className="select-text">
                         {this.props.options.find(opt => String(opt.value) === String(this.state.value)).text}
                     </p>
+                    {this.props.options.length > 1 ?
                     <div className="select-arrow">
                         &#9660;
                     </div>
+                    : null}
                 </div>
                 <div className="select-body">
                     {this.props.options.map(({value, text}) => {
                         let classes = "select-option";
-                        if (value === this.state.value) {
+                        if (String(value) === String(this.state.value)) {
                             classes += " selected";
                         }
                         return (
