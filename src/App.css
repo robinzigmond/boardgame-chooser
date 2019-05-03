@@ -18,6 +18,10 @@
     margin: 2px auto;
 }
 
+.form-section .input-block.bottom-gap {
+    margin-bottom: 10px;
+}
+
 .form-section .input-block.standalone {
     display: block;
     margin-top: 8px;

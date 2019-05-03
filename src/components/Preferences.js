@@ -25,7 +25,7 @@ class Preferences extends Component {
         this.handleMaxWeightChange = this.handleMaxWeightChange.bind(this);
         this.handleOrderChange = this.handleOrderChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {playerCount: 4, availableTime: 30,
+        this.state = {playerCount: 4, useRecommended: false, availableTime: 30,
             gameOrder: "alphabetical", showWeightFilters: false,
             minWeight: 1, maxWeight: 5, allGames: [],
             given: false, filteredGames: [], flags: {}, showFilters: false};
@@ -161,12 +161,23 @@ class Preferences extends Component {
         if (this.state.playerCount && this.state.availableTime) {
             this.setState((state, props) => {
                 let foundGames = props.data.filter(game =>
-                    game.minplayers <= state.playerCount
-                    && game.maxplayers >= state.playerCount
-                    && game.minplaytime <= state.availableTime
+                    game.minplaytime <= state.availableTime
                     && game.maxplaytime >= state.availableTime
                     && game.stats.averageweight >= state.minWeight
                     && game.stats.averageweight <= state.maxWeight);
+                if (state.useRecommended) {
+                    foundGames = foundGames.filter(game => {
+                        if (!game["suggested_numplayers"] || !game["suggested_numplayers"].results) {
+                            return false;
+                        }
+                        let votes = game["suggested_numplayers"].results[state.playerCount];
+                        return votes && (votes.recommended > votes["not_recommended"]);
+                    });
+                }
+                else {
+                    foundGames = foundGames.filter(game => game.minplayers <= state.playerCount
+                        && game.maxplayers >= state.playerCount);
+                }
                 let sortFunction;
                 switch(state.gameOrder) {
                     case "alphabetical":
@@ -220,12 +231,21 @@ class Preferences extends Component {
             {value: "yearpublished", text: "Year published"},
             {value: "weight", text: "Game weight (complexity)"});
         ratingOrders.push({value: "bggRank", text: "BGG ranking list position"});
+
         return (
             <div>
                 <div className="form-section">
                     <div className="input-block">
                         <label htmlFor="playerCount">Number of Players</label>
                         <input type="number" name="playerCount" id="playerCount" value={this.state.playerCount} onChange={this.handlePlayerCountChange}/>
+                    </div>
+                    <div className="input-block bottom-gap">
+                        <label htmlFor="useRecommended">
+                            Only select games which BGG users recommend for this player count?
+                        </label>
+                        <CustomCheckbox value="useRecommended"
+                        handleChange={() => this.setState(({useRecommended}) => ({useRecommended: !useRecommended}))}
+                        id="useRecommended" checked={this.state.useRecommended} />
                     </div>
                     <div className="input-block">
                         <label htmlFor="availableTime">Desired Playing Time (minutes)</label>
