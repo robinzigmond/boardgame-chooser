@@ -8,7 +8,7 @@ import Preferences from './Preferences.js';
 
 const backendUrl = "https://wgtp-backend.herokuapp.com";
 const poll_interval = 5000;
-const max_tries = 20;
+const max_tries = 50;
 
 class App extends Component {
     constructor(props) {
@@ -111,6 +111,11 @@ class App extends Component {
     }
 
     async getUserData() {
+        if (this.pendingRequests) {
+            return; // do nothing if there are requests still ongoing - hopefully avoids
+            // the same user's collection being added multiple times, as I saw when in an area with
+            // poor wifi
+        }
         this.handleRequest(`${backendUrl}/collection/${this.state.username}`, data => {
             this.setState(state => {
                 if (data && data.length) {

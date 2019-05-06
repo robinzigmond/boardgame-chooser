@@ -171,7 +171,7 @@ class Preferences extends Component {
                             return false;
                         }
                         let votes = game["suggested_numplayers"].results[state.playerCount];
-                        return votes && (votes.recommended > votes["not_recommended"]);
+                        return votes && (votes.best + votes.recommended > votes["not_recommended"]);
                     });
                 }
                 else {
